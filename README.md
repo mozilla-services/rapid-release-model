@@ -1,2 +1,3 @@
 # rapid-release-model
-Rapid Release Model for Firefox Services 🚀
+
+Rapid Release Model for Mozilla Services 🚀
