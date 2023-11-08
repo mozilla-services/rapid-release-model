@@ -3,6 +3,7 @@ package test
 import (
 	"bytes"
 	"context"
+	"fmt"
 
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/export"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/factory"
@@ -30,7 +31,11 @@ func ExecuteCmd(newCmd func(*factory.Factory) *cobra.Command, args []string) (st
 	// Overwrite NewGitHubGraphQLClient to return canned responses (fixtures)
 	// rather than querying the live GitHub GraphQL API.
 	factory.NewGitHubGraphQLClient = func() (github.GraphQLClient, error) {
-		return &FakeGraphQLClient{}, nil
+		repo, err := factory.NewGitHubRepo()
+		if err != nil {
+			return nil, fmt.Errorf("error creating test repo")
+		}
+		return &FakeGraphQLClient{repo: repo}, nil
 	}
 
 	cmd := newCmd(factory)

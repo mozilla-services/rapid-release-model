@@ -5,13 +5,24 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/github"
 	"github.com/shurcooL/githubv4"
 )
 
-type FakeGraphQLClient struct{}
+type FakeGraphQLClient struct {
+	repo *github.Repo
+}
 
 func (c *FakeGraphQLClient) Query(ctx context.Context, q interface{}, variables map[string]interface{}) error {
+	// Verify that the query is performed for the specified GitHub repo
+	if reqOwner := string(variables["owner"].(githubv4.String)); !cmp.Equal(reqOwner, c.repo.Owner) {
+		return fmt.Errorf("Repo.Owner in query variables (%v) does not match app config (%v)", reqOwner, c.repo.Owner)
+	}
+	if reqName := string(variables["name"].(githubv4.String)); !cmp.Equal(reqName, c.repo.Name) {
+		return fmt.Errorf("Repo.Name in query variables (%v) does not match app config (%v)", reqName, c.repo.Name)
+	}
+
 	var key string
 
 	// Update this for other GraphQL queries under test.
