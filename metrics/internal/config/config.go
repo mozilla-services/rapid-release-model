@@ -9,7 +9,7 @@ import (
 const envPrefix string = "RRM_METRICS"
 
 func FromEnv(p ...string) string {
-	p = append(p, envPrefix)
-	k := strings.Join(p, "__")
-	return os.Getenv(k)
+	parts := append([]string{envPrefix}, p...)
+	key := strings.Join(parts, "__")
+	return os.Getenv(key)
 }
