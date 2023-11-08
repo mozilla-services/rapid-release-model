@@ -1,0 +1,17 @@
+repos:
+-   repo: local
+    hooks:
+    -   id: go-test-metrics
+        name: run go test on metrics/
+        language: system
+        entry: bash -c 'cd metrics && exec go test -v ./...'
+        pass_filenames: false
+        types: [go]
+        files: ^metrics/
+    -   id: go-build-metrics
+        name: run go build on metrics/
+        language: system
+        entry: bash -c 'cd metrics && exec go build -v ./...'
+        pass_filenames: false
+        types: [go]
+        files: ^metrics/
