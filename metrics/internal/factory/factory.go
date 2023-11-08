@@ -2,6 +2,7 @@ package factory
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -38,9 +39,11 @@ func NewFactory(ctx context.Context) *Factory {
 	}
 
 	f.NewGitHubHTTPClient = func() (*http.Client, error) {
-		src := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: config.FromEnv("GITHUB", "TOKEN")},
-		)
+		token := config.FromEnv("GITHUB", "TOKEN")
+		if token == "" {
+			return nil, fmt.Errorf("Requires GitHub token to be set in env")
+		}
+		src := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 		return oauth2.NewClient(ctx, src), nil
 	}
 
