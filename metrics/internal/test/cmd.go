@@ -6,6 +6,7 @@ import (
 
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/export"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/factory"
+	"github.com/mozilla-services/rapid-release-model/metrics/internal/github"
 	"github.com/spf13/cobra"
 )
 
@@ -24,6 +25,12 @@ func ExecuteCmd(newCmd func(*factory.Factory) *cobra.Command, args []string) (st
 			return nil, err
 		}
 		return &export.WriterExporter{W: buf, Encoder: encoder}, nil
+	}
+
+	// Overwrite NewGitHubGraphQLClient to return canned responses (fixtures)
+	// rather than querying the live GitHub GraphQL API.
+	factory.NewGitHubGraphQLClient = func() (github.GraphQLClient, error) {
+		return &FakeGraphQLClient{}, nil
 	}
 
 	cmd := newCmd(factory)
