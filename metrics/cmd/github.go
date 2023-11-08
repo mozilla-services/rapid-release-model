@@ -28,5 +28,7 @@ func newGitHubCmd(f *factory.Factory) *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&repo.Owner, "repo-owner", "o", repo.Owner, "owner of the GitHub repo")
 	cmd.PersistentFlags().StringVarP(&repo.Name, "repo-name", "n", repo.Name, "name of the GitHub repo")
 
+	cmd.AddCommand(newPullRequestsCmd(f))
+
 	return cmd
 }
