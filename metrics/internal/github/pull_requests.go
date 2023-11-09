@@ -30,16 +30,23 @@ type PullRequestsQuery struct {
 				EndCursor   string
 			}
 			Nodes []PullRequest
-		} `graphql:"pullRequests(states: $states, first: $limit, after: $endCursor, orderBy: $orderBy)"`
+		} `graphql:"pullRequests(states: $states, first: $perPage, after: $endCursor, orderBy: $orderBy)"`
 	} `graphql:"repository(owner: $owner, name: $name)"`
 }
 
 // QueryPullRequests fetches information about merged PRs from the GitHub GraphQL API
 func QueryPullRequests(gqlClient GraphQLClient, repo *Repo, limit int) ([]PullRequest, error) {
+	// Values of `first` and `last` must be within 1-100. See `Node limit` in
+	// GitHub's GraphQL API documentation.
+	perPage := limit
+	if limit > 100 {
+		perPage = 100
+	}
+
 	queryVariables := map[string]interface{}{
 		"owner":     githubv4.String(repo.Owner),
 		"name":      githubv4.String(repo.Name),
-		"limit":     githubv4.Int(limit),
+		"perPage":   githubv4.Int(perPage),
 		"endCursor": (*githubv4.String)(nil), // When paginating forwards, the cursor to continue.
 		"states":    []githubv4.PullRequestState{githubv4.PullRequestStateMerged},
 		"orderBy":   githubv4.IssueOrder{Field: githubv4.IssueOrderFieldUpdatedAt, Direction: githubv4.OrderDirectionDesc},

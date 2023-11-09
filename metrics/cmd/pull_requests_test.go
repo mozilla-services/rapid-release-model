@@ -9,7 +9,7 @@ import (
 )
 
 func TestPullRequests(t *testing.T) {
-	repo := &github.Repo{Owner: "hackebrot", Name: "turtl"}
+	repo := &github.Repo{Owner: "hackebrot", Name: "turtle"}
 
 	env := map[string]string{
 		config.Key("GITHUB", "REPO_OWNER"): "",

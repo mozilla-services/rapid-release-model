@@ -33,10 +33,14 @@ func (c *FakeGraphQLClient) Query(ctx context.Context, q interface{}, variables 
 		return fmt.Errorf("unsupported query: %+v", v)
 	}
 
-	// Default filename for fixtures (first page).
+	// Default filename for fixtures. We don't know the endCursor before we
+	// perform the request. As a result, the filename for the first page does
+	// not contain the endCursor suffix. Subsequent requests have the suffix.
 	filename := "query.json"
 
-	// If endCursor is set, we need to serve the corresponding page instead.
+	// The endCursor variable is set, which means we're serving the next page.
+	// The `after` GraphQL parameter is set to the value of `endCursor` of the
+	// previous request. Add the suffix to the fixture filenamme.
 	if c := variables["endCursor"]; c != (*githubv4.String)(nil) {
 		filename = fmt.Sprintf("query_%s.json", c)
 	}

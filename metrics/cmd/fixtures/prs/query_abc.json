@@ -7,7 +7,7 @@
         "PullRequests": {
             "PageInfo": {
                 "HasNextPage": false,
-                "EndCursor": null
+                "EndCursor": "hello"
             },
             "Nodes": [
                 {
