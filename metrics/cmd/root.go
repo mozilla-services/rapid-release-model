@@ -5,18 +5,50 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mozilla-services/rapid-release-model/metrics/internal/export"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/factory"
 	"github.com/spf13/cobra"
 )
 
+type MetricsOptions struct {
+	Export struct {
+		Encoding string
+	}
+}
+
 // newRootCmd creates a new base command for the metrics CLI app
 func newRootCmd(f *factory.Factory) *cobra.Command {
+	opts := new(MetricsOptions)
+
 	rootCmd := &cobra.Command{
 		Use:   "metrics",
 		Short: "Retrieve software delivery performance metrics",
 		Long:  "Retrieve software delivery performance metrics",
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			switch opts.Export.Encoding {
+			case "json":
+				f.NewEncoder = func() (export.Encoder, error) {
+					return export.NewJSONEncoder()
+				}
+			case "csv":
+				f.NewEncoder = func() (export.Encoder, error) {
+					return export.NewCSVEncoder()
+				}
+			case "plain":
+				f.NewEncoder = func() (export.Encoder, error) {
+					return export.NewPlainEncoder()
+				}
+			default:
+				return fmt.Errorf("unsupported Export.Encoding. Please use 'json', 'csv', or 'plain'.")
+			}
+			return nil
+		},
 	}
+
+	rootCmd.PersistentFlags().StringVarP(&opts.Export.Encoding, "encoding", "e", "json", "export encoding")
+
 	rootCmd.AddCommand(newGitHubCmd(f))
+
 	return rootCmd
 }
 

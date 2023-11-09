@@ -1,9 +1,14 @@
 package export
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
+	"strconv"
+	"time"
+
+	"github.com/mozilla-services/rapid-release-model/metrics/internal/github"
 )
 
 // Interface for CSV, JSON and other encoders
@@ -32,4 +37,89 @@ func (p *PlainEncoder) Encode(w io.Writer, v interface{}) error {
 
 func NewPlainEncoder() (*PlainEncoder, error) {
 	return &PlainEncoder{}, nil
+}
+
+type CSVEncoder struct{}
+
+func (c *CSVEncoder) Encode(w io.Writer, v interface{}) error {
+	var records [][]string
+
+	csvw := csv.NewWriter(w)
+
+	switch v := v.(type) {
+	case []github.PullRequest:
+		records = PullRequestsToCSVRecords(v)
+	case []github.Release:
+		records = ReleasesToCSVRecords(v)
+	default:
+		return fmt.Errorf("unable to export type %T to CSV", v)
+	}
+
+	return csvw.WriteAll(records)
+}
+
+func NewCSVEncoder() (*CSVEncoder, error) {
+	return &CSVEncoder{}, nil
+}
+
+func PullRequestsToCSVRecords(prs []github.PullRequest) [][]string {
+	var records [][]string
+
+	// Add column headers to records
+	records = append(records, []string{
+		"id",
+		"number",
+		"title",
+		"createdAt",
+		"updatedAt",
+		"closedAt",
+		"mergedAt",
+	})
+
+	// Add a record for each pull request
+	for _, pr := range prs {
+		record := []string{
+			pr.ID,
+			strconv.Itoa(pr.Number),
+			pr.Title,
+			pr.CreatedAt.Format(time.RFC3339),
+			pr.UpdatedAt.Format(time.RFC3339),
+			pr.ClosedAt.Format(time.RFC3339),
+			pr.MergedAt.Format(time.RFC3339),
+		}
+		records = append(records, record)
+	}
+	return records
+}
+
+func ReleasesToCSVRecords(rs []github.Release) [][]string {
+	var records [][]string
+
+	// Add column headers to records
+	records = append(records, []string{
+		"name",
+		"tagName",
+		"isDraft",
+		"isLatest",
+		"isPrerelease",
+		"description",
+		"createdAt",
+		"publishedAt",
+	})
+
+	// Add a record for each release
+	for _, r := range rs {
+		record := []string{
+			r.Name,
+			r.TagName,
+			strconv.FormatBool(r.IsDraft),
+			strconv.FormatBool(r.IsLatest),
+			strconv.FormatBool(r.IsPrerelease),
+			r.Description,
+			r.CreatedAt.Format(time.RFC3339),
+			r.PublishedAt.Format(time.RFC3339),
+		}
+		records = append(records, record)
+	}
+	return records
 }
