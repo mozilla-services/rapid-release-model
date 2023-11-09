@@ -30,3 +30,10 @@ func Execute() {
 		os.Exit(1)
 	}
 }
+
+func init() {
+	// New in cobra v1.8.0. See https://github.com/spf13/cobra/pull/2044
+	// Run all PersistentPreRunE hooks, so we don't have to repeat factory
+	// configuration or CLI flags parsing in sub commands.
+	cobra.EnableTraverseRunHooks = true
+}

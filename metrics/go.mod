@@ -5,7 +5,7 @@ go 1.21.3
 require (
 	github.com/google/go-cmp v0.6.0
 	github.com/shurcooL/githubv4 v0.0.0-20230704064427-599ae7bbf278
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	golang.org/x/oauth2 v0.13.0
 )
 
