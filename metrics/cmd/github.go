@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/factory"
+	"github.com/mozilla-services/rapid-release-model/metrics/internal/github"
 	"github.com/spf13/cobra"
 )
 
@@ -20,6 +21,9 @@ func newGitHubCmd(f *factory.Factory) *cobra.Command {
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if repo.Owner == "" || repo.Name == "" {
 				return fmt.Errorf("Repo.Owner and Repo.Name are required. Set env vars or pass flags.")
+			}
+			f.NewGitHubRepo = func() (*github.Repo, error) {
+				return repo, nil
 			}
 			return nil
 		},
