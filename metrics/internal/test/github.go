@@ -29,6 +29,8 @@ func (c *FakeGraphQLClient) Query(ctx context.Context, q interface{}, variables 
 	switch v := q.(type) {
 	case *github.PullRequestsQuery:
 		key = "prs"
+	case *github.ReleasesQuery:
+		key = "releases"
 	default:
 		return fmt.Errorf("unsupported query: %+v", v)
 	}
