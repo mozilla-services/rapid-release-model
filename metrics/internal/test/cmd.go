@@ -25,7 +25,7 @@ func ExecuteCmd(newCmd func(*factory.Factory) *cobra.Command, args []string) (st
 		if err != nil {
 			return nil, err
 		}
-		return &export.WriterExporter{W: buf, Encoder: encoder}, nil
+		return export.NewWriterExporter(buf, encoder)
 	}
 
 	// Overwrite NewGitHubGraphQLClient to return canned responses (fixtures)

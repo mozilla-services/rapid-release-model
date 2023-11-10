@@ -10,25 +10,33 @@ type Exporter interface {
 }
 
 type WriterExporter struct {
-	W       io.Writer
-	Encoder Encoder
+	w       io.Writer
+	encoder Encoder
 }
 
 func (s *WriterExporter) Export(v interface{}) error {
-	return s.Encoder.Encode(s.W, v)
+	return s.encoder.Encode(s.w, v)
+}
+
+func NewWriterExporter(w io.Writer, e Encoder) (*WriterExporter, error) {
+	return &WriterExporter{w: w, encoder: e}, nil
 }
 
 type FileExporter struct {
-	Filename string
-	Encoder  Encoder
+	encoder  Encoder
+	filename string
 }
 
 func (f *FileExporter) Export(v interface{}) error {
-	file, err := os.Create(f.Filename)
+	file, err := os.Create(f.filename)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	return f.Encoder.Encode(file, v)
+	return f.encoder.Encode(file, v)
+}
+
+func NewFileExporter(e Encoder, f string) (*FileExporter, error) {
+	return &FileExporter{encoder: e, filename: f}, nil
 }

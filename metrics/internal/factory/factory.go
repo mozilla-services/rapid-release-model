@@ -35,7 +35,7 @@ func NewFactory(ctx context.Context) *Factory {
 		if err != nil {
 			return nil, err
 		}
-		return &export.WriterExporter{W: os.Stdout, Encoder: encoder}, nil
+		return export.NewWriterExporter(os.Stdout, encoder)
 	}
 
 	f.NewGitHubHTTPClient = func() (*http.Client, error) {
