@@ -26,6 +26,11 @@ func TestReleases(t *testing.T) {
 		Args:        []string{"github", "-o", repo.Owner, "-n", repo.Name, "releases", "-l", "1"},
 		WantFixture: test.NewFixture("releases", "want__limit.json"),
 		Env:         env,
+	}, {
+		Name:        "releases__csv",
+		Args:        []string{"github", "-o", repo.Owner, "-n", repo.Name, "releases", "-e", "csv"},
+		WantFixture: test.NewFixture("releases", "want__default.csv"),
+		Env:         env,
 	}}
 
 	test.RunTests(t, newRootCmd, tests)

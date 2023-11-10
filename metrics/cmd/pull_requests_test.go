@@ -26,6 +26,11 @@ func TestPullRequests(t *testing.T) {
 		Args:        []string{"github", "-o", repo.Owner, "-n", repo.Name, "prs", "-l", "2"},
 		WantFixture: test.NewFixture("prs", "want__limit.json"),
 		Env:         env,
+	}, {
+		Name:        "prs__csv",
+		Args:        []string{"github", "-o", repo.Owner, "-n", repo.Name, "prs", "-e", "csv"},
+		WantFixture: test.NewFixture("prs", "want__default.csv"),
+		Env:         env,
 	}}
 
 	test.RunTests(t, newRootCmd, tests)
