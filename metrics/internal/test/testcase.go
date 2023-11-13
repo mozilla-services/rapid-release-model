@@ -1,6 +1,7 @@
 package test
 
 import (
+	"os"
 	"strings"
 	"testing"
 
@@ -24,6 +25,9 @@ type TestCase struct {
 
 	// Function to load extected output
 	WantFixture func() ([]byte, error)
+
+	// Expect output to be written to this file
+	WantFile string
 
 	// Text expected in error. Empty string means no error expected.
 	ErrContains string
@@ -67,6 +71,18 @@ func RunTests(t *testing.T, newCmd func(*factory.Factory) *cobra.Command, tests 
 
 			if tt.ErrContains != "" && err != nil && !strings.Contains(err.Error(), tt.ErrContains) {
 				t.Fatalf("error did not contain message\ngot:     %v\nmissing: %v", err, tt.ErrContains)
+			}
+
+			if tt.WantFile != "" {
+				export, err := os.ReadFile(tt.WantFile)
+				if err != nil && got == "" {
+					t.Fatalf("CLI did not create file at %v. buffer is empty.", tt.WantFile)
+				}
+				if err != nil && got != "" {
+					t.Fatalf("CLI did not create file at %v. buffer:\n%v", tt.WantFile, got)
+				}
+				// Overwrite got with the contents of the exported file
+				got = string(export[:])
 			}
 
 			want := tt.WantText

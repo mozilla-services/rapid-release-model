@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/config"
@@ -16,6 +17,8 @@ func TestPullRequests(t *testing.T) {
 		config.Key("GITHUB", "REPO_NAME"):  "",
 	}
 
+	tempDir := t.TempDir()
+
 	tests := []test.TestCase{{
 		Name:        "prs__default",
 		Args:        []string{"github", "-o", repo.Owner, "-n", repo.Name, "prs"},
@@ -30,6 +33,12 @@ func TestPullRequests(t *testing.T) {
 		Name:        "prs__csv",
 		Args:        []string{"github", "-o", repo.Owner, "-n", repo.Name, "prs", "-e", "csv"},
 		WantFixture: test.NewFixture("prs", "want__default.csv"),
+		Env:         env,
+	}, {
+		Name:        "prs__filename",
+		Args:        []string{"github", "-o", repo.Owner, "-n", repo.Name, "prs", "-f", filepath.Join(tempDir, "prs.json")},
+		WantFixture: test.NewFixture("prs", "want__default.json"),
+		WantFile:    filepath.Join(tempDir, "prs.json"),
 		Env:         env,
 	}}
 

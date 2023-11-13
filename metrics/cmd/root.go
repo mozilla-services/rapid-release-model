@@ -13,6 +13,7 @@ import (
 type MetricsOptions struct {
 	Export struct {
 		Encoding string
+		Filename string
 	}
 }
 
@@ -41,11 +42,23 @@ func newRootCmd(f *factory.Factory) *cobra.Command {
 			default:
 				return fmt.Errorf("unsupported Export.Encoding. Please use 'json', 'csv', or 'plain'.")
 			}
+
+			if opts.Export.Filename != "" {
+				f.NewExporter = func() (export.Exporter, error) {
+					encoder, err := f.NewEncoder()
+					if err != nil {
+						return nil, err
+					}
+					return export.NewFileExporter(encoder, opts.Export.Filename)
+				}
+			}
+
 			return nil
 		},
 	}
 
 	rootCmd.PersistentFlags().StringVarP(&opts.Export.Encoding, "encoding", "e", "json", "export encoding")
+	rootCmd.PersistentFlags().StringVarP(&opts.Export.Filename, "filename", "f", "", "export to file")
 
 	rootCmd.AddCommand(newGitHubCmd(f))
 
