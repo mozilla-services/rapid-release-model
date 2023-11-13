@@ -20,6 +20,16 @@ func TestReleases(t *testing.T) {
 	tempDir := t.TempDir()
 
 	tests := []test.TestCase{{
+		Name:        "releases__repo_owner__required",
+		Args:        []string{"github", "-n", repo.Name, "releases"},
+		ErrContains: "Repo.Owner and Repo.Name are required. Set env vars or pass flags",
+		Env:         env,
+	}, {
+		Name:        "releases__repo_name__required",
+		Args:        []string{"github", "-o", repo.Owner, "releases"},
+		ErrContains: "Repo.Owner and Repo.Name are required. Set env vars or pass flags",
+		Env:         env,
+	}, {
 		Name:        "releases__default",
 		Args:        []string{"github", "-o", repo.Owner, "-n", repo.Name, "releases"},
 		WantFixture: test.NewFixture("releases", "want__default.json"),
@@ -28,6 +38,11 @@ func TestReleases(t *testing.T) {
 		Name:        "releases__limit",
 		Args:        []string{"github", "-o", repo.Owner, "-n", repo.Name, "releases", "-l", "1"},
 		WantFixture: test.NewFixture("releases", "want__limit.json"),
+		Env:         env,
+	}, {
+		Name:        "releases__json",
+		Args:        []string{"github", "-o", repo.Owner, "-n", repo.Name, "releases", "-e", "json"},
+		WantFixture: test.NewFixture("releases", "want__default.json"),
 		Env:         env,
 	}, {
 		Name:        "releases__csv",
