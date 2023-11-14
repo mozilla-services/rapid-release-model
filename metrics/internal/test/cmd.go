@@ -12,7 +12,7 @@ import (
 )
 
 // ExecuteCmd uses the passed in function to create a command and execute it
-func ExecuteCmd(newCmd func(*factory.Factory) *cobra.Command, args []string) (string, error) {
+func ExecuteCmd(newCmd func(*factory.Factory) *cobra.Command, args []string, wantVariables map[string]interface{}) (string, error) {
 	ctx := context.Background()
 	buf := new(bytes.Buffer)
 
@@ -35,7 +35,7 @@ func ExecuteCmd(newCmd func(*factory.Factory) *cobra.Command, args []string) (st
 		if err != nil {
 			return nil, fmt.Errorf("error creating test repo")
 		}
-		return &FakeGraphQLClient{repo: repo}, nil
+		return &FakeGraphQLClient{repo: repo, wantVariables: wantVariables}, nil
 	}
 
 	cmd := newCmd(factory)

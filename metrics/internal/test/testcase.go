@@ -29,6 +29,9 @@ type TestCase struct {
 	// Expect output to be written to this file
 	WantFile string
 
+	// Expected values for the GraphQL query variables
+	WantVariables map[string]interface{}
+
 	// Text expected in error. Empty string means no error expected.
 	ErrContains string
 }
@@ -59,7 +62,7 @@ func RunTests(t *testing.T, newCmd func(*factory.Factory) *cobra.Command, tests 
 			}
 
 			// Execute the CLI cmd with the specified args
-			got, err := ExecuteCmd(newCmd, tt.Args)
+			got, err := ExecuteCmd(newCmd, tt.Args, tt.WantVariables)
 
 			if tt.ErrContains != "" && err == nil {
 				t.Fatalf("cmd did not return an error. output: %v", got)

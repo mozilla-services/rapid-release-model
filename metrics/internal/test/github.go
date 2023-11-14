@@ -11,7 +11,8 @@ import (
 )
 
 type FakeGraphQLClient struct {
-	repo *github.Repo
+	repo          *github.Repo
+	wantVariables map[string]interface{}
 }
 
 func (c *FakeGraphQLClient) Query(ctx context.Context, q interface{}, variables map[string]interface{}) error {
@@ -23,6 +24,12 @@ func (c *FakeGraphQLClient) Query(ctx context.Context, q interface{}, variables 
 		return fmt.Errorf("Repo.Name in query variables (%v) does not match app config (%v)", reqName, c.repo.Name)
 	}
 
+	for key, want := range c.wantVariables {
+		if got := variables[key]; !cmp.Equal(got, want) {
+			return fmt.Errorf("unexpected value for GraphQL query variable %v\n%v", key, cmp.Diff(got, want))
+		}
+	}
+
 	var key string
 
 	// Update this for other GraphQL queries under test.
@@ -31,6 +38,8 @@ func (c *FakeGraphQLClient) Query(ctx context.Context, q interface{}, variables 
 		key = "prs"
 	case *github.ReleasesQuery:
 		key = "releases"
+	case *github.DeploymentsQuery:
+		key = "deployments"
 	default:
 		return fmt.Errorf("unsupported query: %+v", v)
 	}

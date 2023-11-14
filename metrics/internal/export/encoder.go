@@ -51,6 +51,8 @@ func (c *CSVEncoder) Encode(w io.Writer, v interface{}) error {
 		records = PullRequestsToCSVRecords(v)
 	case []github.Release:
 		records = ReleasesToCSVRecords(v)
+	case []github.Deployment:
+		records = DeploymentsToCSVRecords(v)
 	default:
 		return fmt.Errorf("unable to export type %T to CSV", v)
 	}
@@ -118,6 +120,38 @@ func ReleasesToCSVRecords(rs []github.Release) [][]string {
 			r.Description,
 			r.CreatedAt.Format(time.RFC3339),
 			r.PublishedAt.Format(time.RFC3339),
+		}
+		records = append(records, record)
+	}
+	return records
+}
+
+func DeploymentsToCSVRecords(ds []github.Deployment) [][]string {
+	var records [][]string
+
+	// Add column headers to records
+	records = append(records, []string{
+		"description",
+		"createdAt",
+		"updatedAt",
+		"originalEnvironment",
+		"latestEnvironment",
+		"task",
+		"state",
+		"commitOid",
+	})
+
+	// Add a record for each deployment
+	for _, d := range ds {
+		record := []string{
+			d.Description,
+			d.CreatedAt.Format(time.RFC3339),
+			d.UpdatedAt.Format(time.RFC3339),
+			d.OriginalEnvironment,
+			d.LatestEnvironment,
+			d.Task,
+			d.State,
+			d.Commit.AbbreviatedOid,
 		}
 		records = append(records, record)
 	}
