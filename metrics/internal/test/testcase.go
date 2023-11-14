@@ -103,7 +103,7 @@ func RunTests(t *testing.T, newCmd func(*factory.Factory) *cobra.Command, tests 
 				tWant := strings.TrimSpace(want)
 
 				if !cmp.Equal(tGot, tWant) {
-					t.Fatalf("cmd returned unexpected output\ngot:  %v\nwant: %v", tGot, tWant)
+					t.Fatalf("cmd returned unexpected output\n%v", cmp.Diff(tGot, tWant))
 				}
 			}
 		})
