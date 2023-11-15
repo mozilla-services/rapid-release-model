@@ -27,7 +27,7 @@ func newReleasesCmd(f *factory.Factory) *cobra.Command {
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runReleases(cmd.Parent().Context(), f, opts)
+			return runReleases(cmd.Root().Context(), f, opts)
 		},
 	}
 	cmd.Flags().IntVarP(&opts.Limit, "limit", "l", 10, "limit for how many Releases to fetch")

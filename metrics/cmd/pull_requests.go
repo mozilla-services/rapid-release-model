@@ -27,7 +27,7 @@ func newPullRequestsCmd(f *factory.Factory) *cobra.Command {
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runPullRequests(cmd.Parent().Context(), f, opts)
+			return runPullRequests(cmd.Root().Context(), f, opts)
 		},
 	}
 	cmd.Flags().IntVarP(&opts.Limit, "limit", "l", 10, "limit for how many PRs to fetch")

@@ -28,7 +28,7 @@ func newDeploymentsCmd(f *factory.Factory) *cobra.Command {
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runDeployments(cmd.Parent().Context(), f, opts)
+			return runDeployments(cmd.Root().Context(), f, opts)
 		},
 	}
 	cmd.Flags().IntVarP(&opts.Limit, "limit", "l", 10, "limit for how many Deployments to fetch")
