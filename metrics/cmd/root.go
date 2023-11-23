@@ -1,75 +1,84 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
-	"io"
 	"os"
 
+	"github.com/mozilla-services/rapid-release-model/metrics/internal/export"
+	"github.com/mozilla-services/rapid-release-model/metrics/internal/factory"
 	"github.com/spf13/cobra"
 )
 
-// Prefix for application specific environment variables
-const envPrefix = "RRM_METRICS_"
-
-// Repo for which to retrieve metrics
-type Repo struct {
-	Owner string
-	Name  string
-}
-
-// Options for the cmd
-type Options struct {
-	Out  io.Writer
-	Repo *Repo
+type MetricsOptions struct {
+	Export struct {
+		Encoding string
+		Filename string
+	}
 }
 
 // newRootCmd creates a new base command for the metrics CLI app
-func newRootCmd(w io.Writer) *cobra.Command {
-	opts := &Options{
-		Out: w,
-		Repo: &Repo{
-			Owner: os.Getenv(envPrefix + "REPO_OWNER"),
-			Name:  os.Getenv(envPrefix + "REPO_NAME"),
-		},
-	}
+func newRootCmd(f *factory.Factory) *cobra.Command {
+	opts := new(MetricsOptions)
 
 	rootCmd := &cobra.Command{
 		Use:   "metrics",
 		Short: "Retrieve software delivery performance metrics",
 		Long:  "Retrieve software delivery performance metrics",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			if opts.Repo.Owner == "" {
-				return fmt.Errorf("Repo.Owner is required. Set env var or pass flag.")
+			switch opts.Export.Encoding {
+			case "json":
+				f.NewEncoder = func() (export.Encoder, error) {
+					return export.NewJSONEncoder()
+				}
+			case "csv":
+				f.NewEncoder = func() (export.Encoder, error) {
+					return export.NewCSVEncoder()
+				}
+			case "plain":
+				f.NewEncoder = func() (export.Encoder, error) {
+					return export.NewPlainEncoder()
+				}
+			default:
+				return fmt.Errorf("unsupported Export.Encoding. Please use 'json', 'csv', or 'plain'.")
 			}
-			if opts.Repo.Name == "" {
-				return fmt.Errorf("Repo.Name is required. Set env var or pass flag.")
+
+			if opts.Export.Filename != "" {
+				f.NewExporter = func() (export.Exporter, error) {
+					encoder, err := f.NewEncoder()
+					if err != nil {
+						return nil, err
+					}
+					return export.NewFileExporter(encoder, opts.Export.Filename)
+				}
 			}
+
 			return nil
-		},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return runRoot(opts)
 		},
 	}
 
-	rootCmd.PersistentFlags().StringVarP(&opts.Repo.Owner, "repo-owner", "o", opts.Repo.Owner, "owner of the GitHub repo")
-	rootCmd.PersistentFlags().StringVarP(&opts.Repo.Name, "repo-name", "n", opts.Repo.Name, "name of the GitHub repo")
+	rootCmd.PersistentFlags().StringVarP(&opts.Export.Encoding, "encoding", "e", "json", "export encoding")
+	rootCmd.PersistentFlags().StringVarP(&opts.Export.Filename, "filename", "f", "", "export to file")
+
+	rootCmd.AddCommand(newGitHubCmd(f))
 
 	return rootCmd
 }
 
-// runRoot performs the action for the metrics CLI command
-func runRoot(opts *Options) error {
-	if _, err := fmt.Fprintf(opts.Out, "Retrieving metrics for %s/%s\n", opts.Repo.Owner, opts.Repo.Name); err != nil {
-		return err
-	}
-	return nil
-}
-
 // Execute the CLI application and write errors to os.Stderr
 func Execute() {
-	rootCmd := newRootCmd(os.Stdout)
-	if err := rootCmd.Execute(); err != nil {
+	ctx := context.Background()
+	factory := factory.NewFactory(ctx)
+	rootCmd := newRootCmd(factory)
+	if err := rootCmd.ExecuteContext(ctx); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
+}
+
+func init() {
+	// New in cobra v1.8.0. See https://github.com/spf13/cobra/pull/2044
+	// Run all PersistentPreRunE hooks, so we don't have to repeat factory
+	// configuration or CLI flags parsing in sub commands.
+	cobra.EnableTraverseRunHooks = true
 }

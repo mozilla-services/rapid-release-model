@@ -7,7 +7,7 @@ import (
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/test"
 )
 
-func TestRoot(t *testing.T) {
+func TestGitHub(t *testing.T) {
 	env := map[string]string{
 		config.EnvKey("GITHUB", "REPO_OWNER"): "",
 		config.EnvKey("GITHUB", "REPO_NAME"):  "",
@@ -15,8 +15,8 @@ func TestRoot(t *testing.T) {
 
 	tests := []test.TestCase{
 		{
-			Name:        "metrics",
-			Args:        []string{},
+			Name:        "github",
+			Args:        []string{"github"},
 			ErrContains: "",
 			Env:         env,
 		},
