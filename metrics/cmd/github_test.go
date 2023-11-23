@@ -9,8 +9,8 @@ import (
 
 func TestGitHub(t *testing.T) {
 	env := map[string]string{
-		config.Key("GITHUB", "REPO_OWNER"): "",
-		config.Key("GITHUB", "REPO_NAME"):  "",
+		config.EnvKey("GITHUB", "REPO_OWNER"): "",
+		config.EnvKey("GITHUB", "REPO_NAME"):  "",
 	}
 
 	tests := []test.TestCase{

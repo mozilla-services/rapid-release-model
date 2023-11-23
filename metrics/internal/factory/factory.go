@@ -39,9 +39,9 @@ func NewFactory(ctx context.Context) *Factory {
 	}
 
 	f.NewGitHubHTTPClient = func() (*http.Client, error) {
-		token := config.FromEnv("GITHUB", "TOKEN")
-		if token == "" {
-			return nil, fmt.Errorf("Requires GitHub token to be set in env")
+		token, err := config.ReadFromEnvE("GITHUB", "TOKEN")
+		if err != nil {
+			return nil, fmt.Errorf("Error creating GitHub HTTP Client: %w", err)
 		}
 		src := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 		return oauth2.NewClient(ctx, src), nil
@@ -58,8 +58,8 @@ func NewFactory(ctx context.Context) *Factory {
 
 	f.NewGitHubRepo = func() (*github.Repo, error) {
 		repo := &github.Repo{
-			Owner: config.FromEnv("GITHUB", "REPO_OWNER"),
-			Name:  config.FromEnv("GITHUB", "REPO_NAME"),
+			Owner: config.ReadFromEnv("GITHUB", "REPO_OWNER"),
+			Name:  config.ReadFromEnv("GITHUB", "REPO_NAME"),
 		}
 		return repo, nil
 	}
