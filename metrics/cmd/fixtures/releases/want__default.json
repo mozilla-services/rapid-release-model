@@ -15,7 +15,7 @@
         "IsDraft": false,
         "IsLatest": false,
         "IsPrerelease": false,
-        "Description": "Description for 0.2.0",
+        "Description": "## What's Changed\n* Develop feature by @hackebrot in https://github.com/hackebrot/turtle/pull/123\n* Add tests for feature by @hackebrot in https://github.com/hackebrot/turtle/pull/124\n",
         "CreatedAt": "2019-12-15T17:35:58Z",
         "PublishedAt": "2019-12-15T20:00:44Z"
     },
@@ -25,7 +25,7 @@
         "IsDraft": false,
         "IsLatest": false,
         "IsPrerelease": false,
-        "Description": "Description for 0.1.0",
+        "Description": "## What's Changed\n* Create app by @hackebrot in https://github.com/hackebrot/turtle/pull/22\n",
         "CreatedAt": "2018-07-13T15:23:49Z",
         "PublishedAt": "2018-07-16T13:30:36Z"
     }
