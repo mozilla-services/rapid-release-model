@@ -15,7 +15,7 @@ type ReleaseWithPRs struct {
 // NewReleaseWithPrs creates a new ReleaseWithPRs by parsing PR numbers from
 // auto-generated Release Descriptions.
 func NewReleaseWithPRs(r *Release) *ReleaseWithPRs {
-	rprs := &ReleaseWithPRs{*r, []int{}}
+	var prs []int
 
 	// Pattern for auto-generated release notes. For more information see:
 	// https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes
@@ -28,10 +28,10 @@ func NewReleaseWithPRs(r *Release) *ReleaseWithPRs {
 				if err != nil {
 					continue
 				}
-				rprs.PRs = append(rprs.PRs, n)
+				prs = append(prs, n)
 			}
 		}
 	}
 
-	return rprs
+	return &ReleaseWithPRs{*r, prs}
 }
