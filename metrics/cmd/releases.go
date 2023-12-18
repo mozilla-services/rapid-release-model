@@ -10,7 +10,8 @@ import (
 )
 
 type ReleasesOptions struct {
-	Limit int
+	Limit   int
+	WithPRs bool
 }
 
 func newReleasesCmd(f *factory.Factory) *cobra.Command {
@@ -31,6 +32,8 @@ func newReleasesCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVarP(&opts.Limit, "limit", "l", 10, "limit for how many Releases to fetch")
+	cmd.Flags().BoolVar(&opts.WithPRs, "prs", false, "parse PR numbers from auto-generated release notes")
+
 	return cmd
 }
 
@@ -53,6 +56,15 @@ func runReleases(ctx context.Context, f *factory.Factory, opts *ReleasesOptions)
 	exporter, err := f.NewExporter()
 	if err != nil {
 		return err
+	}
+
+	if opts.WithPRs {
+		var releasesWithPRs []github.ReleaseWithPRs
+
+		for _, release := range releases {
+			releasesWithPRs = append(releasesWithPRs, *github.NewReleaseWithPRs(&release))
+		}
+		return exporter.Export(releasesWithPRs)
 	}
 
 	return exporter.Export(releases)
