@@ -7,6 +7,8 @@ import (
 	"github.com/shurcooL/githubv4"
 )
 
+// Release is a GitHub GraphQL API Release object.
+// See https://docs.github.com/en/graphql/reference/objects#release
 type Release struct {
 	Name         string
 	TagName      string

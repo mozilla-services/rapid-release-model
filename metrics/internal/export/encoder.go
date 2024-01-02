@@ -43,6 +43,7 @@ type CSVEncoder struct{}
 
 func (c *CSVEncoder) Encode(w io.Writer, v interface{}) error {
 	var records [][]string
+	var err error
 
 	csvw := csv.NewWriter(w)
 
@@ -51,6 +52,11 @@ func (c *CSVEncoder) Encode(w io.Writer, v interface{}) error {
 		records = PullRequestsToCSVRecords(v)
 	case []github.Release:
 		records = ReleasesToCSVRecords(v)
+	case []github.ReleaseWithPRs:
+		records, err = ReleasesWithPRsToCSVRecords(v)
+		if err != nil {
+			return err
+		}
 	case []github.Deployment:
 		records = DeploymentsToCSVRecords(v)
 	default:
@@ -124,6 +130,47 @@ func ReleasesToCSVRecords(rs []github.Release) [][]string {
 		records = append(records, record)
 	}
 	return records
+}
+
+// ReleasesWithPRsToCSVRecords is identical to ReleasesToCSVRecords with the
+// addition of an extra column on the right for a JSON array of PR numbers.
+func ReleasesWithPRsToCSVRecords(rs []github.ReleaseWithPRs) ([][]string, error) {
+	var records [][]string
+
+	// Add column headers to records
+	records = append(records, []string{
+		"name",
+		"tagName",
+		"isDraft",
+		"isLatest",
+		"isPrerelease",
+		"description",
+		"createdAt",
+		"publishedAt",
+		"prs",
+	})
+
+	// Add a record for each release
+	for _, r := range rs {
+		prs, err := json.Marshal(r.PRs)
+		if err != nil {
+			return nil, fmt.Errorf("error encoding PRs as JSON: %w", err)
+		}
+		record := []string{
+			r.Release.Name,
+			r.Release.TagName,
+			strconv.FormatBool(r.Release.IsDraft),
+			strconv.FormatBool(r.Release.IsLatest),
+			strconv.FormatBool(r.Release.IsPrerelease),
+			r.Release.Description,
+			r.Release.CreatedAt.Format(time.RFC3339),
+			r.Release.PublishedAt.Format(time.RFC3339),
+			string(prs),
+		}
+		records = append(records, record)
+	}
+
+	return records, nil
 }
 
 func DeploymentsToCSVRecords(ds []github.Deployment) [][]string {

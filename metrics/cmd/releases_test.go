@@ -55,6 +55,16 @@ func TestReleases(t *testing.T) {
 		WantFixture: test.NewFixture("releases", "want__default.json"),
 		WantFile:    filepath.Join(tempDir, "r.json"),
 		Env:         env,
+	}, {
+		Name:        "releases__prs__json",
+		Args:        []string{"github", "-o", repo.Owner, "-n", repo.Name, "releases", "--prs", "-e", "json"},
+		WantFixture: test.NewFixture("releases", "want__prs.json"),
+		Env:         env,
+	}, {
+		Name:        "releases__prs__csv",
+		Args:        []string{"github", "-o", repo.Owner, "-n", repo.Name, "releases", "--prs", "-e", "csv"},
+		WantFixture: test.NewFixture("releases", "want__prs.csv"),
+		Env:         env,
 	}}
 
 	test.RunTests(t, newRootCmd, tests)
