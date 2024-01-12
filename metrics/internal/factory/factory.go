@@ -22,6 +22,7 @@ type Factory struct {
 	NewGitHubGraphQLClient      func() (github.GraphQLClient, error)
 	NewGitHubRepo               func() (*github.Repo, error)
 	NewGrafanaHTTPClient        func() (grafana.HTTPClient, error)
+	NewGrafanaAnnotationsFilter func() (*grafana.AnnotationsFilter, error)
 }
 
 // NewFactory creates the default Factory for the CLI application
@@ -79,5 +80,15 @@ func NewFactory(ctx context.Context) *Factory {
 
 		return grafana.NewClient(grafanaURL, accessToken)
 	}
+
+	f.NewGrafanaAnnotationsFilter = func() (*grafana.AnnotationsFilter, error) {
+		repo := &grafana.AnnotationsFilter{
+			App:  config.ReadFromEnv("GRAFANA", "ANNOTATIONS", "APP"),
+			From: config.ReadFromEnv("GRAFANA", "ANNOTATIONS", "FROM"),
+			To:   config.ReadFromEnv("GRAFANA", "ANNOTATIONS", "TO"),
+		}
+		return repo, nil
+	}
+
 	return f
 }
