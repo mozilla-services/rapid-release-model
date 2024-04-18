@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -60,6 +62,75 @@ type Deployment struct {
 	Canary      bool
 }
 
+// readDockerImageFromText reads the Docker image repo and tag from the
+// Annotation's text. If no complete info is found, return an error.
+func readDockerImageFromText(t string) (*DockerImage, error) {
+	pattern := `<b>Docker Image:</b> (?P<repo>\w+):(?P<tag>[a-zA-Z0-9\.]+)<br>`
+	re := regexp.MustCompile(pattern)
+
+	var repo string
+	var tag string
+
+	for _, match := range re.FindAllStringSubmatch(t, 1) {
+		for i, name := range re.SubexpNames() {
+			if name == "repo" {
+				repo = match[i]
+			}
+			if name == "tag" {
+				tag = match[i]
+			}
+		}
+	}
+
+	if repo == "" || tag == "" {
+		return nil, fmt.Errorf("no Docker image tag in text")
+	}
+
+	return &DockerImage{Repo: repo, Tag: tag}, nil
+}
+
+// readEnvironmentFromTags
+func readEnvironmentFromTags(tags []string) (string, error) {
+	pattern := `env:(\w+)`
+	re := regexp.MustCompile(pattern)
+	for _, t := range tags {
+		if submatches := re.FindStringSubmatch(t); submatches != nil {
+			return submatches[1], nil
+		}
+	}
+	return "", fmt.Errorf("cannot find env in tags")
+}
+
+// readCanaryFromText returns if it's a canary deployment
+func readCanaryFromText(t string) bool {
+	pattern := `Canary Deployment:`
+	re := regexp.MustCompile(pattern)
+	return re.MatchString(t)
+}
+
+// newDeploymentFromAnnotation creates a new Deployment from the given Annotation
+func newDeploymentFromAnnotation(a *Annotation) (*Deployment, error) {
+	dockerImage, err := readDockerImageFromText(a.Text)
+	if err != nil {
+		log.Printf("unable to read Docker Image from annotation: %v", err)
+	}
+
+	env, err := readEnvironmentFromTags(a.Tags)
+	if err != nil {
+		log.Printf("unable to read Environment from annotation: %v", err)
+	}
+
+	deployment := &Deployment{
+		CreatedAt:   time.UnixMilli(a.CreatedAt).UTC(),
+		UpdatedAt:   time.UnixMilli(a.UpdatedAt).UTC(),
+		Env:         env,
+		DockerImage: dockerImage,
+		Canary:      readCanaryFromText(a.Text),
+	}
+
+	return deployment, nil
+}
+
 // QueryDeployments fetches information about Deployments from the Grafana REST API
 func QueryDeployments(ctx context.Context, httpClient HTTPClient, filter *AnnotationsFilter) ([]Deployment, error) {
 	// Create HTTP request query parameters
@@ -79,10 +150,10 @@ func QueryDeployments(ctx context.Context, httpClient HTTPClient, filter *Annota
 	var deployments []Deployment
 
 	for _, a := range annotations {
-		// TODO: Parse Docker image, environment, and canary from the annotation text
-		deployment := &Deployment{
-			CreatedAt: time.UnixMilli(a.CreatedAt).UTC(),
-			UpdatedAt: time.UnixMilli(a.UpdatedAt).UTC(),
+		deployment, err := newDeploymentFromAnnotation(&a)
+		if err != nil {
+			log.Printf("error creating Deployment from Annotation %v", err)
+			continue
 		}
 		deployments = append(deployments, *deployment)
 	}

@@ -13,14 +13,14 @@
         "created": 1706064620004,
         "updated": 1706064718021,
         "timeEnd": 1706064718021,
-        "text": "test",
+        "text": "<b>Canary Deployment:<\b> turtle<br><b>Docker Image:</b> turtle:2024.01.22<br>",
         "metric": "",
         "tags": [
             "app:turtle",
-            "env:stage",
+            "env:prod",
             "event_status:complete",
             "event_type:deployment",
-            "realm:nonprod",
+            "realm:prod",
             "type:app"
         ],
         "data": {}
@@ -39,7 +39,7 @@
         "created": 1666403642123,
         "updated": 1666403642123,
         "timeEnd": 1666403642123,
-        "text": "test",
+        "text": "<b>Docker Image:</b> turtle:2022.10.02<br>",
         "metric": "",
         "tags": [
             "app:turtle",
