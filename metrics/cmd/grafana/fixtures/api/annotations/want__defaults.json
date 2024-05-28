@@ -1,0 +1,22 @@
+[
+    {
+        "DockerImage": {
+            "repo": "turtle",
+            "tag": "2024.01.22"
+        },
+        "CreatedAt": "2024-01-24T02:50:20.004Z",
+        "UpdatedAt": "2024-01-24T02:51:58.021Z",
+        "Env": "prod",
+        "Canary": true
+    },
+    {
+        "DockerImage": {
+            "repo": "turtle",
+            "tag": "2022.10.02"
+        },
+        "CreatedAt": "2022-10-22T01:54:02.123Z",
+        "UpdatedAt": "2022-10-22T01:54:02.123Z",
+        "Env": "stage",
+        "Canary": false
+    }
+]

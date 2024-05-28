@@ -8,11 +8,12 @@ import (
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/export"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/factory"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/github"
+	"github.com/mozilla-services/rapid-release-model/metrics/internal/grafana"
 	"github.com/spf13/cobra"
 )
 
 // ExecuteCmd uses the passed in function to create a command and execute it
-func ExecuteCmd(newCmd func(*factory.Factory) *cobra.Command, args []string, wantVariables map[string]interface{}) (string, error) {
+func ExecuteCmd(newCmd func(*factory.Factory) *cobra.Command, args []string, wantReqParams *WantReqParams) (string, error) {
 	ctx := context.Background()
 	buf := new(bytes.Buffer)
 
@@ -28,14 +29,37 @@ func ExecuteCmd(newCmd func(*factory.Factory) *cobra.Command, args []string, wan
 		return export.NewWriterExporter(buf, encoder)
 	}
 
-	// Overwrite NewGitHubGraphQLClient to return canned responses (fixtures)
-	// rather than querying the live GitHub GraphQL API.
+	// Overwrite NewGitHubGraphQLClient to return a fake client that returns
+	// canned responses (fixtures) rather than sending queries to the live
+	// GitHub GraphQL API.
 	factory.NewGitHubGraphQLClient = func() (github.GraphQLClient, error) {
+		// Create a new GitHub Repo object
 		repo, err := factory.NewGitHubRepo()
 		if err != nil {
-			return nil, fmt.Errorf("error creating test repo")
+			return nil, fmt.Errorf("error creating GitHub Repo object")
 		}
-		return &FakeGraphQLClient{repo: repo, wantVariables: wantVariables}, nil
+
+		var reqParams *GitHubReqParams
+
+		// Testcase did specifiy expected request parameters.
+		if wantReqParams != nil {
+			reqParams = wantReqParams.GitHub
+		}
+
+		return &FakeGitHubGraphQLClient{repo: repo, reqParams: reqParams}, nil
+	}
+
+	// Overwrite NewGrafanaHTTPClient to return a fake client that returns
+	// canned responses (fixtures) rather than sending queries to the live
+	// Grafana REST API.
+	factory.NewGrafanaHTTPClient = func() (grafana.HTTPClient, error) {
+		var reqParams *GrafanaReqParams
+
+		// Testcase did specifiy expected request parameters.
+		if wantReqParams != nil {
+			reqParams = wantReqParams.Grafana
+		}
+		return &FakeGrafanaClient{reqParams: reqParams}, nil
 	}
 
 	cmd := newCmd(factory)

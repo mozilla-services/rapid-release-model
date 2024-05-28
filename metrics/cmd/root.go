@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mozilla-services/rapid-release-model/metrics/cmd/grafana"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/export"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/factory"
 	"github.com/spf13/cobra"
@@ -61,6 +62,7 @@ func newRootCmd(f *factory.Factory) *cobra.Command {
 	rootCmd.PersistentFlags().StringVarP(&opts.Export.Filename, "filename", "f", "", "export to file")
 
 	rootCmd.AddCommand(newGitHubCmd(f))
+	rootCmd.AddCommand(grafana.NewGrafanaCmd(f))
 
 	return rootCmd
 }

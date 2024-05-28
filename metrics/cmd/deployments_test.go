@@ -57,15 +57,25 @@ func TestDeployments(t *testing.T) {
 		WantFile:    filepath.Join(tempDir, "r.json"),
 		Env:         env,
 	}, {
-		Name:          "deployments__env__single",
-		Args:          []string{"github", "-o", repo.Owner, "-n", repo.Name, "deployments", "--env", "prod"},
-		WantVariables: map[string]interface{}{"environments": []githubv4.String{githubv4.String("prod")}},
-		Env:           env,
+		Name: "deployments__env__single",
+		Args: []string{"github", "-o", repo.Owner, "-n", repo.Name, "deployments", "--env", "prod"},
+		WantReqParams: &test.WantReqParams{
+			GitHub: &test.GitHubReqParams{
+				Variables: map[string]interface{}{
+					"environments": []githubv4.String{githubv4.String("prod")}},
+			},
+		},
+		Env: env,
 	}, {
-		Name:          "deployments__env__multiple",
-		Args:          []string{"github", "-o", repo.Owner, "-n", repo.Name, "deployments", "--env", "prod", "--env", "hello"},
-		WantVariables: map[string]interface{}{"environments": []githubv4.String{githubv4.String("prod"), githubv4.String("hello")}},
-		Env:           env,
+		Name: "deployments__env__multiple",
+		Args: []string{"github", "-o", repo.Owner, "-n", repo.Name, "deployments", "--env", "prod", "--env", "hello"},
+		WantReqParams: &test.WantReqParams{
+			GitHub: &test.GitHubReqParams{
+				Variables: map[string]interface{}{
+					"environments": []githubv4.String{githubv4.String("prod"), githubv4.String("hello")}},
+			},
+		},
+		Env: env,
 	}}
 
 	test.RunTests(t, newRootCmd, tests)

@@ -10,12 +10,19 @@ import (
 	"github.com/shurcooL/githubv4"
 )
 
-type FakeGraphQLClient struct {
-	repo          *github.Repo
-	wantVariables map[string]interface{}
+// GitHubReqParams holds expected values for outgoing requests to GitHub.
+type GitHubReqParams struct {
+	Variables map[string]interface{}
 }
 
-func (c *FakeGraphQLClient) Query(ctx context.Context, q interface{}, variables map[string]interface{}) error {
+// FakeGitHubGraphQLClient returns canned responses (fixtures) rather than
+// sending queries to the live GitHub GraphQL API.
+type FakeGitHubGraphQLClient struct {
+	repo      *github.Repo
+	reqParams *GitHubReqParams
+}
+
+func (c *FakeGitHubGraphQLClient) Query(ctx context.Context, q interface{}, variables map[string]interface{}) error {
 	// Verify that the query is performed for the specified GitHub repo
 	if reqOwner := string(variables["owner"].(githubv4.String)); !cmp.Equal(reqOwner, c.repo.Owner) {
 		return fmt.Errorf("Repo.Owner in query variables (%v) does not match app config (%v)", reqOwner, c.repo.Owner)
@@ -24,9 +31,12 @@ func (c *FakeGraphQLClient) Query(ctx context.Context, q interface{}, variables 
 		return fmt.Errorf("Repo.Name in query variables (%v) does not match app config (%v)", reqName, c.repo.Name)
 	}
 
-	for key, want := range c.wantVariables {
-		if got := variables[key]; !cmp.Equal(got, want) {
-			return fmt.Errorf("unexpected value for GraphQL query variable %v\n%v", key, cmp.Diff(got, want))
+	// Check if the testcase did specifiy expected request parameters.
+	if wantReqParams := c.reqParams; wantReqParams != nil {
+		for key, want := range wantReqParams.Variables {
+			if got := variables[key]; !cmp.Equal(got, want) {
+				return fmt.Errorf("unexpected value for GraphQL query variable %v\n%v", key, cmp.Diff(got, want))
+			}
 		}
 	}
 

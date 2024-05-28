@@ -10,6 +10,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// WantReqParams holds expected values for outgoing requests to GitHub and
+// Grafana. These will be passed on to the respective fake clients and will be
+// validated against when performing a request.
+type WantReqParams struct {
+	GitHub  *GitHubReqParams
+	Grafana *GrafanaReqParams
+}
+
 type TestCase struct {
 	// Name of the test case
 	Name string
@@ -29,8 +37,8 @@ type TestCase struct {
 	// Expect output to be written to this file
 	WantFile string
 
-	// Expected values for the GraphQL query variables
-	WantVariables map[string]interface{}
+	// Expected parameters for outgoing requests to GitHub and Grafana
+	WantReqParams *WantReqParams
 
 	// Text expected in error. Empty string means no error expected.
 	ErrContains string
@@ -62,7 +70,7 @@ func RunTests(t *testing.T, newCmd func(*factory.Factory) *cobra.Command, tests 
 			}
 
 			// Execute the CLI cmd with the specified args
-			got, err := ExecuteCmd(newCmd, tt.Args, tt.WantVariables)
+			got, err := ExecuteCmd(newCmd, tt.Args, tt.WantReqParams)
 
 			if tt.ErrContains != "" && err == nil {
 				t.Fatalf("cmd did not return an error. output: %v", got)
