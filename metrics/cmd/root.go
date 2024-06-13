@@ -24,8 +24,8 @@ func newRootCmd(f *factory.Factory) *cobra.Command {
 
 	rootCmd := &cobra.Command{
 		Use:   "metrics",
-		Short: "Retrieve software delivery performance metrics",
-		Long:  "Retrieve software delivery performance metrics",
+		Short: "Retrieve data for measuring software delivery performance.",
+		Long:  "Retrieve data for measuring software delivery performance.",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			switch opts.Export.Encoding {
 			case "json":
