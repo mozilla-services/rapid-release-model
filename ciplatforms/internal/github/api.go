@@ -178,12 +178,14 @@ func updateRepos(batch []*Repository, data map[string]interface{}) error {
 	return nil
 }
 
-// hasYmlFile checks if any entry in the entries slice is a YAML file.
+// hasYmlFile checks if any entry in the entries slice is a YAML file with a .yml or .yaml extension.
 func hasYmlFile(entries []interface{}) bool {
 	for _, entry := range entries {
 		if entryMap, ok := entry.(map[string]interface{}); ok {
-			if name, ok := entryMap["name"].(string); ok && strings.HasSuffix(name, ".yml") {
-				return true
+			if name, ok := entryMap["name"].(string); ok {
+				if strings.HasSuffix(name, ".yml") || strings.HasSuffix(name, ".yaml") {
+					return true
+				}
 			}
 		}
 	}
