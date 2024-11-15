@@ -8,13 +8,18 @@ on:
   merge_group:
     types: [checks_requested]
 
-defaults:
-  run:
-    working-directory: ./metrics
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+        matrix:
+            dir: [metrics, ciplatforms]
+
+    defaults:
+        run:
+            working-directory: ${{ matrix.dir }}
+
     steps:
       - uses: actions/checkout@v3
       - name: Set up Go
