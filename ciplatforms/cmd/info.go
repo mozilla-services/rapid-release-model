@@ -68,8 +68,8 @@ func newInfoCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&opts.inputFile, "input", "i", "repos.csv", "input file")
-	cmd.Flags().StringVarP(&opts.outputFile, "output", "o", "repos_ciplatforms.csv", "output file")
+	cmd.Flags().StringVarP(&opts.inputFile, "input", "i", "services.csv", "input file")
+	cmd.Flags().StringVarP(&opts.outputFile, "output", "o", "services_ciplatforms.csv", "output file")
 	cmd.Flags().StringVarP(&opts.githubAPIToken, "gh-token", "t", "", "GitHub API token")
 
 	cmd.Flags().DurationVar(&opts.timeout, "timeout", 10*time.Second, "timeout for GitHub API requests")
