@@ -25,6 +25,7 @@ type Repository struct {
 	GitHubActions bool   `json:"gh_actions"`
 	Taskcluster   bool   `json:"taskcluster"`
 	Accessible    bool   `json:"accessible"`
+	Archived      bool   `json:"archived"`
 }
 
 // Define the GraphQL query template for batch queries for multiple repos.
@@ -34,6 +35,7 @@ query {
   repo{{ $i }}: repository(owner: "{{ $repo.Owner }}", name: "{{ $repo.Name }}") {
     name
     owner { login }
+    isArchived
     circleci: object(expression: "HEAD:.circleci/config.yml") {
       ... on Blob { id }
     }
@@ -160,6 +162,12 @@ func updateRepos(batch []*Repository, data map[string]interface{}) error {
 		repoDataMap, ok := repoData.(map[string]interface{})
 		if !ok {
 			return fmt.Errorf("invalid data format for alias %s (%s/%s): expected a map but got %T", alias, repo.Owner, repo.Name, repoData)
+		}
+
+		if archived, ok := repoDataMap["isArchived"].(bool); ok {
+			repo.Archived = archived
+		} else {
+			log.Printf("[WARNING] 'isArchived' field missing or invalid for repository %s/%s", repo.Owner, repo.Name)
 		}
 
 		// Check if CircleCI configuration file is present

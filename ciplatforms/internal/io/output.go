@@ -38,7 +38,7 @@ func (c CSVResultWriter) WriteResults(filename string, services []github.Service
 	defer writer.Flush()
 
 	// Write header row
-	header := []string{"service", "repo", "circleci", "github_actions", "taskcluster", "accessible"}
+	header := []string{"service", "repo", "circleci", "github_actions", "taskcluster", "accessible", "archived"}
 	if err := writer.Write(header); err != nil {
 		return fmt.Errorf("error writing header to CSV file: %w", err)
 	}
@@ -52,6 +52,7 @@ func (c CSVResultWriter) WriteResults(filename string, services []github.Service
 			fmt.Sprintf("%t", service.Repository.GitHubActions),
 			fmt.Sprintf("%t", service.Repository.Taskcluster),
 			fmt.Sprintf("%t", service.Repository.Accessible),
+			fmt.Sprintf("%t", service.Repository.Archived),
 		}
 		if err := writer.Write(row); err != nil {
 			return fmt.Errorf("error writing row to CSV file: %w", err)
