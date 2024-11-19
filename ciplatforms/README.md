@@ -99,6 +99,7 @@ service,repository
 monitor,mozilla/blurts-server
 autoconnect,mozilla-services/autopush-rs
 autoendpoint,mozilla-services/autopush-rs
+contile,mozilla-services/contile
 ```
 
 Example JSON output format (`services_ciplatforms.json`):
@@ -111,7 +112,8 @@ Example JSON output format (`services_ciplatforms.json`):
     "circle_ci": false,
     "gh_actions": true,
     "taskcluster": false,
-    "accessible": true
+    "accessible": true,
+    "archived": false
   },
   {
     "service": "autoconnect",
@@ -119,7 +121,8 @@ Example JSON output format (`services_ciplatforms.json`):
     "circle_ci": true,
     "gh_actions": true,
     "taskcluster": false,
-    "accessible": true
+    "accessible": true,
+    "archived": false
   },
   {
     "service": "autoendpoint",
@@ -127,16 +130,26 @@ Example JSON output format (`services_ciplatforms.json`):
     "circle_ci": true,
     "gh_actions": true,
     "taskcluster": false,
-    "accessible": true
+    "accessible": true,
+    "archived": false
+  },
+  {
+    "service": "contile",
+    "repository": "mozilla-services/contile",
+    "circle_ci": true,
+    "gh_actions": false,
+    "taskcluster": false,
+    "accessible": true,
+    "archived": true
   }
 ]
 ```
 
 This output provides details about the CI platform configuration status of each
 repository, including its accessibility (a repository may be inaccessible if it
-does not exist or if the provided authentication token lacks access), and flags
-indicating the presence of CircleCI, GitHub Actions, and Taskcluster
-configuration files.
+does not exist or if the provided authentication token lacks access), whether it
+has been archived, and flags indicating the presence of CircleCI, GitHub
+Actions, and Taskcluster configuration files.
 
 ## Docker
 
