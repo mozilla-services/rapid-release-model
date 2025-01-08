@@ -19,7 +19,10 @@ func WriteCSV(outputFile string, results []map[string]string) error {
 
 	// Define the explicit order of fields
 	headers := []string{"Tenant Name", "Deployment Type", "Migration Status"}
-	csvWriter.Write(headers)
+	err = csvWriter.Write(headers)
+	if err != nil {
+		fmt.Printf("Error writing CSV Headers")
+	}
 
 	// Write rows
 	for _, result := range results {
@@ -28,7 +31,10 @@ func WriteCSV(outputFile string, results []map[string]string) error {
 			result["Deployment Type"],
 			result["Migration Status"],
 		}
-		csvWriter.Write(row)
+		err = csvWriter.Write(row)
+		if err != nil {
+			fmt.Printf("Error writing CSV Rows")
+		}
 	}
 
 	return nil
