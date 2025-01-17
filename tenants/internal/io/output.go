@@ -18,7 +18,7 @@ func WriteCSV(outputFile string, results []map[string]string) error {
 	defer csvWriter.Flush()
 
 	// Define the explicit order of fields
-	headers := []string{"Tenant Name", "Deployment Type", "Migration Status"}
+	headers := []string{"TenantName", "DeploymentType", "MigrationStatus"}
 	err = csvWriter.Write(headers)
 	if err != nil {
 		fmt.Printf("Error writing CSV Headers")
@@ -27,9 +27,9 @@ func WriteCSV(outputFile string, results []map[string]string) error {
 	// Write rows
 	for _, result := range results {
 		row := []string{
-			result["Tenant Name"],
-			result["Deployment Type"],
-			result["Migration Status"],
+			result["TenantName"],
+			result["DeploymentType"],
+			result["MigrationStatus"],
 		}
 		err = csvWriter.Write(row)
 		if err != nil {
@@ -41,9 +41,9 @@ func WriteCSV(outputFile string, results []map[string]string) error {
 }
 
 type Result struct {
-	TenantName      string `json:"Tenant Name"`
-	DeploymentType  string `json:"Deployment Type"`
-	MigrationStatus string `json:"Migration Status"`
+	TenantName      string
+	DeploymentType  string
+	MigrationStatus string
 }
 
 func WriteJSON(outputFile string, results []map[string]string) error {
@@ -57,9 +57,9 @@ func WriteJSON(outputFile string, results []map[string]string) error {
 	structResults := []Result{}
 	for _, result := range results {
 		structResults = append(structResults, Result{
-			TenantName:      result["Tenant Name"],
-			DeploymentType:  result["Deployment Type"],
-			MigrationStatus: result["Migration Status"],
+			TenantName:      result["TenantName"],
+			DeploymentType:  result["DeploymentType"],
+			MigrationStatus: result["MigrationStatus"],
 		})
 	}
 

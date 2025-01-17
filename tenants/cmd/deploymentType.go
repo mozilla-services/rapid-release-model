@@ -10,41 +10,60 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// deploymentTypeCmd represents the deploymentType command
-var deploymentTypeCmd = &cobra.Command{
-	Use:   "deploymentType",
-	Short: "Parse tenant files directory for deployment type",
-	Long: `Parse a local tenant files directory for deployment type
-Example:
-  ./tenants deploymentType -d ../../global-platform-admin/tenants`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return runAnalysis(cmd)
-	},
+type DeploymentTypeOptions struct {
+	TenantDirectory string
+	OutputFile      string
+	Format          string
 }
 
-func init() {
-	rootCmd.AddCommand(deploymentTypeCmd)
+func newDeploymentTypeCmd() *cobra.Command {
+	opts := new(DeploymentTypeOptions)
 
-	deploymentTypeCmd.Flags().StringP("directory", "d", "../tenants", "Path to the tenants directory containing YAML files")
-	deploymentTypeCmd.Flags().StringP("output", "o", "deployment_type.csv", "Output file")
-	deploymentTypeCmd.Flags().StringP("format", "f", "csv", "Output format: csv or json")
+	cmd := &cobra.Command{
+		Use:   "deploymentType",
+		Short: "Parse tenant files directory for deployment type",
+		Long: `Parse a local tenant files directory for deployment type
+	Example:
+	  ./tenants deploymentType -d ../../global-platform-admin/tenants`,
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			// Bind the directory flag
+			directory, err := cmd.Flags().GetString("directory")
+			if err != nil {
+				return fmt.Errorf("failed to get directory flag: %w", err)
+			}
+			opts.TenantDirectory = directory
+
+			// Bind the output file flag
+			outputFile, err := cmd.Flags().GetString("output")
+			if err != nil {
+				return fmt.Errorf("failed to get output flag: %w", err)
+			}
+			opts.OutputFile = outputFile
+
+			// Bind the format flag
+			format, err := cmd.Flags().GetString("format")
+			if err != nil {
+				return fmt.Errorf("failed to get format flag: %w", err)
+			}
+			opts.Format = format
+
+			return nil
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runAnalysis(opts)
+		},
+	}
+
+	cmd.Flags().StringP("output", "o", "deployment_type.csv", "Output file")
+	cmd.Flags().StringP("format", "f", "csv", "Output format: csv or json")
+
+	return cmd
 }
 
-func runAnalysis(cmd *cobra.Command) error {
-	directory, err := cmd.Flags().GetString("directory")
-	if err != nil {
-		return fmt.Errorf("failed to get directory flag: %v", err)
-	}
-
-	outputFile, err := cmd.Flags().GetString("output")
-	if err != nil {
-		return fmt.Errorf("failed to get output flag: %v", err)
-	}
-
-	format, err := cmd.Flags().GetString("format")
-	if err != nil {
-		return fmt.Errorf("failed to get format flag: %v", err)
-	}
+func runAnalysis(opts *DeploymentTypeOptions) error {
+	directory := opts.TenantDirectory
+	outputFile := opts.OutputFile
+	format := opts.Format
 
 	files, err := io.GetYamlFiles(directory)
 	if err != nil {
@@ -64,14 +83,14 @@ func runAnalysis(cmd *cobra.Command) error {
 		fmt.Printf("Checking tenant: %s\n", fileName)
 		content, err := os.ReadFile(file)
 		if err != nil {
-			fmt.Printf("Error reading tenant file %s: %v\n", fileName, err)
+			fmt.Printf("Skipping tenant file %s due to an error: %v\n", fileName, err)
 			continue
 		}
 		deploymentType, migrationStatus := io.ParseDeploymentTypeAndMigration(string(content))
 		results = append(results, map[string]string{
-			"Tenant Name":      fileName,
-			"Deployment Type":  deploymentType,
-			"Migration Status": migrationStatus,
+			"TenantName":      fileName,
+			"DeploymentType":  deploymentType,
+			"MigrationStatus": migrationStatus,
 		})
 
 		if deploymentType == "argocd" {

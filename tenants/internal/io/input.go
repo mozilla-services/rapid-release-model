@@ -9,6 +9,26 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type Tenant struct {
+	Globals struct {
+		Deployment struct {
+			Type string `yaml:"type"`
+		} `yaml:"deployment"`
+	} `yaml:"globals"`
+	Realms struct {
+		Nonprod struct {
+			Deployment struct {
+				Type string `yaml:"type"`
+			} `yaml:"deployment"`
+		} `yaml:"nonprod"`
+		Prod struct {
+			Deployment struct {
+				Type string `yaml:"type"`
+			} `yaml:"deployment"`
+		} `yaml:"prod"`
+	} `yaml:"realms"`
+}
+
 func GetYamlFiles(directory string) ([]string, error) {
 	var files []string
 	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
@@ -29,27 +49,9 @@ func GetYamlFiles(directory string) ([]string, error) {
 }
 
 func ParseDeploymentTypeAndMigration(fileContent string) (string, string) {
-	var config struct {
-		Globals struct {
-			Deployment struct {
-				Type string `yaml:"type"`
-			} `yaml:"deployment"`
-		} `yaml:"globals"`
-		Realms struct {
-			Nonprod struct {
-				Deployment struct {
-					Type string `yaml:"type"`
-				} `yaml:"deployment"`
-			} `yaml:"nonprod"`
-			Prod struct {
-				Deployment struct {
-					Type string `yaml:"type"`
-				} `yaml:"deployment"`
-			} `yaml:"prod"`
-		} `yaml:"realms"`
-	}
+	var tenant Tenant
 
-	err := yaml.Unmarshal([]byte(fileContent), &config)
+	err := yaml.Unmarshal([]byte(fileContent), &tenant)
 	if err != nil {
 		fmt.Printf("Error parsing YAML content: %v\n", err)
 		return "Error", "Error"
@@ -58,17 +60,17 @@ func ParseDeploymentTypeAndMigration(fileContent string) (string, string) {
 	deploymentTypes := make(map[string]bool)
 
 	// Collect deployment types
-	globalType := strings.Trim(config.Globals.Deployment.Type, "\" ")
+	globalType := strings.Trim(tenant.Globals.Deployment.Type, "\" ")
 	if globalType != "" {
 		deploymentTypes[globalType] = true
 	}
 
-	nonprodType := strings.Trim(config.Realms.Nonprod.Deployment.Type, "\" ")
+	nonprodType := strings.Trim(tenant.Realms.Nonprod.Deployment.Type, "\" ")
 	if nonprodType != "" {
 		deploymentTypes[nonprodType] = true
 	}
 
-	prodType := strings.Trim(config.Realms.Prod.Deployment.Type, "\" ")
+	prodType := strings.Trim(tenant.Realms.Prod.Deployment.Type, "\" ")
 	if prodType != "" {
 		deploymentTypes[prodType] = true
 	}
@@ -88,6 +90,11 @@ func ParseDeploymentTypeAndMigration(fileContent string) (string, string) {
 		migrationStatus = "unknown"
 	}
 
+	/*
+	  This is being used to track live and complete migrations to ArgoCD
+	  On average these migrations have taken less than a week to complete
+	  and the detailed progress is tracked by migrationStatus
+	*/
 	deploymentType := ""
 	if hasArgocd {
 		deploymentType = "argocd"

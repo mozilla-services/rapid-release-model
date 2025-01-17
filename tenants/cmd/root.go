@@ -1,27 +1,40 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use:   "tenants",
-	Short: "CLI app for parsing GCPv2 tenant files for cataloguing",
-	Long:  "CLI app for parsing GCPv2 tenant files for cataloguing",
+// newRootCmd creates a new base command for the metrics CLI app
+func newRootCmd() *cobra.Command {
+	rootCmd := &cobra.Command{
+		Use:   "tenants",
+		Short: "CLI app for parsing GCPv2 tenant files for cataloguing",
+		Long:  "CLI app for parsing GCPv2 tenant files for cataloguing",
+	}
+
+	rootCmd.PersistentFlags().StringP("directory", "d", "", "Path to the tenants directory containing YAML files")
+	rootCmd.MarkPersistentFlagRequired("directory")
+
+	rootCmd.AddCommand(newDeploymentTypeCmd())
+
+	return rootCmd
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
+// Execute the CLI application and write errors to os.Stderr
 func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
+	rootCmd := newRootCmd()
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
 }
 
 func init() {
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// New in cobra v1.8.0. See https://github.com/spf13/cobra/pull/2044
+	// Run all PersistentPreRunE hooks, so we don't have to repeat factory
+	// configuration or CLI flags parsing in sub commands.
+	cobra.EnableTraverseRunHooks = true
 }
