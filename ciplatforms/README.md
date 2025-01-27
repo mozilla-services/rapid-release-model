@@ -150,29 +150,3 @@ repository, including its accessibility (a repository may be inaccessible if it
 does not exist or if the provided authentication token lacks access), whether it
 has been archived, and flags indicating the presence of CircleCI, GitHub
 Actions, and Taskcluster configuration files.
-
-## Docker
-
-You can also run the `ciplatforms` app as a Docker container.
-
-### Build the Docker Image
-
-To build the Docker image, use the following command:
-
-```bash
-docker build -t ciplatforms:latest .
-```
-
-### Run the Docker Container
-
-To run the `info` subcommand inside the Docker container, mount the directory
-containing the input and output files as a volume and pass the required
-environment variable:
-
-```bash
-docker run --rm \
-  -e CIPLATFORMS_GITHUB_API_TOKEN \
-  -v $(pwd)/data:/data \
-  ciplatforms:latest \
-  info --input /data/services.csv --output /data/services_out.json
-```
