@@ -29,7 +29,7 @@ The main subcommand is `deploymentType`, which retrieves deploymentType informat
 our GCPv2 tenants.
 
 ```bash
-tenants deploymentType -d ../../tenants
+tenants deploymentType -d <path-to-tenants-directory>
 ```
 
 Example:
