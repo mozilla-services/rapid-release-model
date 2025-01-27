@@ -8,8 +8,8 @@ import (
 
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/config"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/export"
-	"github.com/mozilla-services/rapid-release-model/metrics/internal/github"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/grafana"
+	"github.com/mozilla-services/rapid-release-model/pkg/github"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 )
