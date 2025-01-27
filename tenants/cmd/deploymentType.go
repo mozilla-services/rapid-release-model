@@ -100,7 +100,7 @@ func runAnalysis(opts *DeploymentTypeOptions) error {
 
 	percentageArgocd := float64(argocdTenants) / float64(totalTenants) * 100
 	fmt.Printf("Total tenants: %d\n", totalTenants)
-	fmt.Printf("Tenants on argocd: %d\n", argocdTenants)
+	fmt.Printf("Tenants on Argo CD: %d\n", argocdTenants)
 	fmt.Printf("Percentage of tenants on argocd: %.2f%%\n", percentageArgocd)
 
 	if format == "csv" {
