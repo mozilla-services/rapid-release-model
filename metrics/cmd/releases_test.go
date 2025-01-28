@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/config"
-	"github.com/mozilla-services/rapid-release-model/metrics/internal/github"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/test"
+	"github.com/mozilla-services/rapid-release-model/pkg/github"
 )
 
 func TestReleases(t *testing.T) {

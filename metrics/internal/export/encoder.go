@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/mozilla-services/rapid-release-model/metrics/internal/github"
+	"github.com/mozilla-services/rapid-release-model/pkg/github"
 )
 
 // Interface for CSV, JSON and other encoders

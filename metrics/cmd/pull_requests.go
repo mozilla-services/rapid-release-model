@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/factory"
-	"github.com/mozilla-services/rapid-release-model/metrics/internal/github"
+	"github.com/mozilla-services/rapid-release-model/pkg/github"
 	"github.com/spf13/cobra"
 )
 

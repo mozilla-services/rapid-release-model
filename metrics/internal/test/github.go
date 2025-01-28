@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/mozilla-services/rapid-release-model/metrics/internal/github"
+	"github.com/mozilla-services/rapid-release-model/pkg/github"
 	"github.com/shurcooL/githubv4"
 )
 
