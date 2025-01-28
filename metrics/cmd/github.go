@@ -35,6 +35,7 @@ func newGitHubCmd(f *factory.Factory) *cobra.Command {
 	cmd.AddCommand(newPullRequestsCmd(f))
 	cmd.AddCommand(newReleasesCmd(f))
 	cmd.AddCommand(newDeploymentsCmd(f))
+	cmd.AddCommand(newCompareCmd(f))
 
 	return cmd
 }
