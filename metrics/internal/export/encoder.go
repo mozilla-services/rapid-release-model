@@ -185,6 +185,7 @@ func DeploymentsToCSVRecords(ds []github.Deployment) [][]string {
 		"latestEnvironment",
 		"task",
 		"state",
+		"abbreviatedCommitOid",
 		"commitOid",
 	})
 
@@ -197,8 +198,9 @@ func DeploymentsToCSVRecords(ds []github.Deployment) [][]string {
 			d.OriginalEnvironment,
 			d.LatestEnvironment,
 			d.Task,
-			d.State,
+			string(d.State),
 			d.Commit.AbbreviatedOid,
+			d.Commit.Oid,
 		}
 		records = append(records, record)
 	}

@@ -19,7 +19,8 @@
                     "Task": "deploy",
                     "State": "ACTIVE",
                     "Commit": {
-                        "AbbreviatedOid": "3abc111"
+                        "AbbreviatedOid": "3abc111",
+                        "Oid": "3abc111ccccccccccc"
                     }
                 }
             ]
