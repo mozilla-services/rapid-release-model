@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/mozilla-services/rapid-release-model/pkg/github"
@@ -59,6 +60,8 @@ func (c *CSVEncoder) Encode(w io.Writer, v interface{}) error {
 		}
 	case []github.Deployment:
 		records = DeploymentsToCSVRecords(v)
+	case map[string][]*github.DeploymentWithCommits:
+		records = DeploymentsWithCommitsToCSVRecords(v)
 	default:
 		return fmt.Errorf("unable to export type %T to CSV", v)
 	}
@@ -75,7 +78,6 @@ func PullRequestsToCSVRecords(prs []github.PullRequest) [][]string {
 
 	// Add column headers to records
 	records = append(records, []string{
-		"id",
 		"number",
 		"title",
 		"createdAt",
@@ -87,7 +89,6 @@ func PullRequestsToCSVRecords(prs []github.PullRequest) [][]string {
 	// Add a record for each pull request
 	for _, pr := range prs {
 		record := []string{
-			pr.ID,
 			strconv.Itoa(pr.Number),
 			pr.Title,
 			pr.CreatedAt.Format(time.RFC3339),
@@ -185,8 +186,8 @@ func DeploymentsToCSVRecords(ds []github.Deployment) [][]string {
 		"latestEnvironment",
 		"task",
 		"state",
-		"abbreviatedCommitOid",
-		"commitOid",
+		"abbreviatedCommitSHA",
+		"commitSHA",
 	})
 
 	// Add a record for each deployment
@@ -199,10 +200,54 @@ func DeploymentsToCSVRecords(ds []github.Deployment) [][]string {
 			d.LatestEnvironment,
 			d.Task,
 			string(d.State),
-			d.Commit.AbbreviatedOid,
-			d.Commit.Oid,
+			string(d.Commit.AbbreviatedSHA),
+			string(d.Commit.SHA),
 		}
 		records = append(records, record)
+	}
+	return records
+}
+
+func DeploymentsWithCommitsToCSVRecords(dByEnv map[string][]*github.DeploymentWithCommits) [][]string {
+	var records [][]string
+
+	// Add column headers to records
+	records = append(records, []string{
+		"description",
+		"createdAt",
+		"updatedAt",
+		"originalEnvironment",
+		"latestEnvironment",
+		"task",
+		"state",
+		"abbreviatedCommitSHA",
+		"commitSHA",
+		"deployedCommits",
+	})
+
+	// Add a record for each deployment
+	for _, deploys := range dByEnv {
+		for _, d := range deploys {
+
+			var deployedSHAs []string
+			for _, commit := range d.DeployedCommits {
+				deployedSHAs = append(deployedSHAs, commit.SHA)
+			}
+
+			record := []string{
+				d.Description,
+				d.CreatedAt.Format(time.RFC3339),
+				d.UpdatedAt.Format(time.RFC3339),
+				d.OriginalEnvironment,
+				d.LatestEnvironment,
+				d.Task,
+				string(d.State),
+				string(d.Commit.AbbreviatedSHA),
+				string(d.Commit.SHA),
+				strings.Join(deployedSHAs, ","),
+			}
+			records = append(records, record)
+		}
 	}
 	return records
 }

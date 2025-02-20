@@ -29,5 +29,5 @@ func (c *FakeGrafanaClient) Get(ctx context.Context, p string, params url.Values
 		return nil, fmt.Errorf("unexpected URL values for HTTP query\n%v", cmp.Diff(params, c.reqParams.Params))
 	}
 
-	return LoadFixture(p, "response.json")
+	return LoadFixture("grafana", p, "response.json")
 }

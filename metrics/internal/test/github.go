@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/mozilla-services/rapid-release-model/pkg/github"
+	"github.com/mozilla-services/rapid-release-model/pkg/github/graphql"
 	"github.com/shurcooL/githubv4"
 )
 
@@ -44,11 +45,11 @@ func (c *FakeGitHubGraphQLClient) Query(ctx context.Context, q interface{}, vari
 
 	// Update this for other GraphQL queries under test.
 	switch v := q.(type) {
-	case *github.PullRequestsQuery:
+	case *graphql.PullRequestsQuery:
 		key = "prs"
-	case *github.ReleasesQuery:
+	case *graphql.ReleasesQuery:
 		key = "releases"
-	case *github.DeploymentsQuery:
+	case *graphql.DeploymentsQuery:
 		key = "deployments"
 	default:
 		return fmt.Errorf("unsupported query: %+v", v)
@@ -66,7 +67,7 @@ func (c *FakeGitHubGraphQLClient) Query(ctx context.Context, q interface{}, vari
 		filename = fmt.Sprintf("query_%s.json", c)
 	}
 
-	jsonData, err := LoadFixture(key, filename)
+	jsonData, err := LoadFixture("github", key, filename)
 	if err != nil {
 		return err
 	}

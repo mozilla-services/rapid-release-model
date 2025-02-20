@@ -37,6 +37,6 @@ func (f *FileExporter) Export(v interface{}) error {
 	return f.encoder.Encode(file, v)
 }
 
-func NewFileExporter(e Encoder, f string) (*FileExporter, error) {
+func NewFileExporter(f string, e Encoder) (*FileExporter, error) {
 	return &FileExporter{encoder: e, filename: f}, nil
 }

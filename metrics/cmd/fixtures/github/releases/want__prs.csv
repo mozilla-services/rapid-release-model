@@ -1,0 +1,9 @@
+name,tagName,isDraft,isLatest,isPrerelease,description,createdAt,publishedAt,prs
+20.1.0,20.1.0,false,true,false,Description for 20.1.0,2020-05-04T14:55:36Z,2020-05-04T15:02:21Z,null
+0.2.0,0.2.0,false,false,false,"## What's Changed
+* Develop feature by @hackebrot in https://github.com/hackebrot/turtle/pull/123
+* Add tests for feature by @hackebrot in https://github.com/hackebrot/turtle/pull/124
+",2019-12-15T17:35:58Z,2019-12-15T20:00:44Z,"[123,124]"
+0.1.0,0.1.0,false,false,false,"## What's Changed
+* Create app by @hackebrot in https://github.com/hackebrot/turtle/pull/22
+",2018-07-13T15:23:49Z,2018-07-16T13:30:36Z,[22]

@@ -1,0 +1,34 @@
+[
+    {
+        "Number": 1,
+        "Title": "Set up CI/CD workflow 📦",
+        "CreatedAt": "2023-09-08T16:33:20Z",
+        "UpdatedAt": "2023-09-10T07:24:20Z",
+        "ClosedAt": "2023-09-10T07:24:17Z",
+        "MergedAt": "2023-09-10T07:24:16Z"
+    },
+    {
+        "Number": 2,
+        "Title": "Refactor test framework 🤖",
+        "CreatedAt": "2023-09-08T09:18:42Z",
+        "UpdatedAt": "2023-09-08T09:40:23Z",
+        "ClosedAt": "2023-09-08T09:40:20Z",
+        "MergedAt": "2023-09-08T09:40:19Z"
+    },
+    {
+        "Number": 3,
+        "Title": "Fetch deployment metrics 🚀",
+        "CreatedAt": "2023-10-08T08:09:38Z",
+        "UpdatedAt": "2023-10-08T08:58:13Z",
+        "ClosedAt": "2023-11-08T08:58:10Z",
+        "MergedAt": "2023-11-08T08:58:10Z"
+    },
+    {
+        "Number": 4,
+        "Title": "Updating Docker image 📦",
+        "CreatedAt": "2023-12-08T16:33:20Z",
+        "UpdatedAt": "2023-12-10T07:24:20Z",
+        "ClosedAt": "2023-12-10T07:24:17Z",
+        "MergedAt": "2023-12-10T07:24:16Z"
+    }
+]

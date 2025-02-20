@@ -1,4 +1,4 @@
-package grafana
+package cmd
 
 import (
 	"net/url"
@@ -8,7 +8,7 @@ import (
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/test"
 )
 
-func TestDeployments(t *testing.T) {
+func TestGrafanaDeployments(t *testing.T) {
 	env := map[string]string{
 		config.EnvKey("GRAFANA", "TOKEN"):               "",
 		config.EnvKey("GRAFANA", "SERVER_URL"):          "",
@@ -20,14 +20,14 @@ func TestDeployments(t *testing.T) {
 	tests := []test.TestCase{
 		{
 			Name:        "deployments__app_name__required",
-			Args:        []string{"deployments"},
-			ErrContains: "App is required. Set env var or pass flag",
+			Args:        []string{"grafana", "deployments"},
+			ErrContains: "app is required. Set env var or pass flag",
 			Env:         env,
 		},
 		{
 			Name:        "deployments__defaults",
-			Args:        []string{"deployments", "-a", "turtle"},
-			WantFixture: test.NewFixture("api", "annotations", "want__defaults.json"),
+			Args:        []string{"grafana", "deployments", "-a", "turtle"},
+			WantFixture: test.NewFixture("grafana", "api", "annotations", "want__defaults.json"),
 			WantReqParams: &test.WantReqParams{Grafana: &test.GrafanaReqParams{
 				Path: "api/annotations",
 				Params: url.Values{
@@ -42,7 +42,7 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Name: "deployments__env__from_to",
-			Args: []string{"deployments", "-a", "turtle"},
+			Args: []string{"grafana", "deployments", "-a", "turtle"},
 			WantReqParams: &test.WantReqParams{Grafana: &test.GrafanaReqParams{
 				Path: "api/annotations",
 				Params: url.Values{
@@ -60,7 +60,7 @@ func TestDeployments(t *testing.T) {
 		},
 		{
 			Name: "deployments__env__from_to__overwrite",
-			Args: []string{"deployments", "-a", "turtle", "--from", "now-12M", "--to", "now-1M"},
+			Args: []string{"grafana", "deployments", "-a", "turtle", "--from", "now-12M", "--to", "now-1M"},
 			WantReqParams: &test.WantReqParams{Grafana: &test.GrafanaReqParams{
 				Path: "api/annotations",
 				Params: url.Values{
@@ -78,5 +78,5 @@ func TestDeployments(t *testing.T) {
 		},
 	}
 
-	test.RunTests(t, NewGrafanaCmd, tests)
+	test.RunTests(t, NewRootCmd, tests)
 }

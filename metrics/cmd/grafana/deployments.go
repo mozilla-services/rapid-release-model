@@ -4,20 +4,25 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/mozilla-services/rapid-release-model/metrics/internal/factory"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/grafana"
 	"github.com/spf13/cobra"
 )
 
-type DeploymentsOptions struct {
+type deploymentsOptions struct {
 	App   string
 	From  string
 	To    string
 	Limit int
 }
 
-func newDeploymentsCmd(f *factory.Factory) *cobra.Command {
-	opts := new(DeploymentsOptions)
+type deploymentsConfig struct {
+	*grafanaConfig
+	filter *grafana.AnnotationsFilter
+}
+
+func newDeploymentsCmd(f Factory, c *grafanaConfig) *cobra.Command {
+	opts := new(deploymentsOptions)
+	config := &deploymentsConfig{grafanaConfig: c}
 
 	cmd := &cobra.Command{
 		Use:   "deployments",
@@ -26,10 +31,7 @@ func newDeploymentsCmd(f *factory.Factory) *cobra.Command {
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			// Read annotations filter values from environment variables.
 			// Order: CLI flag default values, environment variables, CLI flag values
-			filter, err := f.NewGrafanaAnnotationsFilter()
-			if err != nil {
-				return fmt.Errorf("Error reading Grafana Annotations Filter from env: %w", err)
-			}
+			filter := f.DefaultGrafanaAnnotationsFilter()
 
 			// This flag is required. If neither env is set or flag is given, error out.
 			if cmd.Flags().Changed("app-name") {
@@ -37,7 +39,7 @@ func newDeploymentsCmd(f *factory.Factory) *cobra.Command {
 			}
 
 			if filter.App == "" {
-				return fmt.Errorf("App is required. Set env var or pass flag.")
+				return fmt.Errorf("app is required. Set env var or pass flag")
 			}
 
 			if filter.From == "" || cmd.Flags().Changed("from") {
@@ -51,18 +53,16 @@ func newDeploymentsCmd(f *factory.Factory) *cobra.Command {
 			filter.Limit = opts.Limit
 
 			if filter.Limit < 1 {
-				return fmt.Errorf("Limit cannot be smaller than 1.")
+				return fmt.Errorf("limit cannot be smaller than 1")
 			}
 
-			// Overwrite the factory function to return the loaded filter values.
-			f.NewGrafanaAnnotationsFilter = func() (*grafana.AnnotationsFilter, error) {
-				return filter, nil
-			}
+			config.filter = filter
 
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runDeployments(cmd.Root().Context(), f, opts)
+			ctx := cmd.Context()
+			return runDeployments(ctx, config)
 		},
 	}
 
@@ -74,26 +74,15 @@ func newDeploymentsCmd(f *factory.Factory) *cobra.Command {
 	return cmd
 }
 
-func runDeployments(ctx context.Context, f *factory.Factory, opts *DeploymentsOptions) error {
-	filter, err := f.NewGrafanaAnnotationsFilter()
+func runDeployments(ctx context.Context, config *deploymentsConfig) error {
+	config.logger.Debug(
+		"runDeployments",
+		"client", config.client,
+	)
+
+	deployments, err := grafana.QueryDeployments(ctx, config.client, config.filter)
 	if err != nil {
 		return err
 	}
-
-	client, err := f.NewGrafanaHTTPClient()
-	if err != nil {
-		return err
-	}
-
-	deployments, err := grafana.QueryDeployments(ctx, client, filter)
-	if err != nil {
-		return err
-	}
-
-	exporter, err := f.NewExporter()
-	if err != nil {
-		return err
-	}
-
-	return exporter.Export(deployments)
+	return config.exporter.Export(deployments)
 }
