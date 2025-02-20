@@ -1,25 +1,11 @@
-package github
+package graphql
 
 import (
 	"context"
-	"time"
 
+	"github.com/mozilla-services/rapid-release-model/pkg/github"
 	"github.com/shurcooL/githubv4"
 )
-
-type Deployment struct {
-	Description         string
-	CreatedAt           time.Time
-	UpdatedAt           time.Time
-	OriginalEnvironment string
-	LatestEnvironment   string
-	Task                string
-	State               githubv4.DeploymentState
-	Commit              struct {
-		AbbreviatedOid string
-		Oid            string
-	}
-}
 
 type DeploymentsQuery struct {
 	Repository struct {
@@ -38,7 +24,7 @@ type DeploymentsQuery struct {
 }
 
 // QueryDeployments fetches information about Deployments from the GitHub GraphQL API
-func QueryDeployments(gqlClient GraphQLClient, repo *Repo, limit int, envs *[]string) ([]Deployment, error) {
+func (a *API) QueryDeployments(ctx context.Context, repo *github.Repo, envs *[]string, limit int) ([]github.Deployment, error) {
 	// Values of `first` and `last` must be within 1-100. See `Node limit` in
 	// GitHub's GraphQL API documentation.
 	perPage := limit
@@ -61,19 +47,19 @@ func QueryDeployments(gqlClient GraphQLClient, repo *Repo, limit int, envs *[]st
 		"environments": environments,
 	}
 
-	var deployments []Deployment
+	var deployments []github.Deployment
 
 Loop:
 	for {
 		var query DeploymentsQuery
 
-		err := gqlClient.Query(context.Background(), &query, queryVariables)
+		err := a.client.Query(ctx, &query, queryVariables)
 		if err != nil {
 			return nil, err
 		}
 
-		for _, n := range query.Repository.Deployments.Nodes {
-			deployments = append(deployments, n)
+		for _, d := range query.Repository.Deployments.Nodes {
+			deployments = append(deployments, *ConvertDeployment(&d))
 			if len(deployments) == limit {
 				break Loop
 			}

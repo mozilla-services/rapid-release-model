@@ -1,24 +1,11 @@
-package github
+package graphql
 
 import (
 	"context"
-	"time"
 
+	"github.com/mozilla-services/rapid-release-model/pkg/github"
 	"github.com/shurcooL/githubv4"
 )
-
-// Release is a GitHub GraphQL API Release object.
-// See https://docs.github.com/en/graphql/reference/objects#release
-type Release struct {
-	Name         string
-	TagName      string
-	IsDraft      bool
-	IsLatest     bool
-	IsPrerelease bool
-	Description  string
-	CreatedAt    time.Time
-	PublishedAt  time.Time
-}
 
 type ReleasesQuery struct {
 	Repository struct {
@@ -37,7 +24,7 @@ type ReleasesQuery struct {
 }
 
 // QueryReleases fetches information about merged PRs from the GitHub GraphQL API
-func QueryReleases(gqlClient GraphQLClient, repo *Repo, limit int) ([]Release, error) {
+func (a *API) QueryReleases(ctx context.Context, repo *github.Repo, limit int) ([]github.Release, error) {
 	// Values of `first` and `last` must be within 1-100. See `Node limit` in
 	// GitHub's GraphQL API documentation.
 	perPage := limit
@@ -53,19 +40,19 @@ func QueryReleases(gqlClient GraphQLClient, repo *Repo, limit int) ([]Release, e
 		"orderBy":   githubv4.ReleaseOrder{Field: githubv4.ReleaseOrderFieldCreatedAt, Direction: githubv4.OrderDirectionDesc},
 	}
 
-	var releases []Release
+	var releases []github.Release
 
 Loop:
 	for {
 		var query ReleasesQuery
 
-		err := gqlClient.Query(context.Background(), &query, queryVariables)
+		err := a.client.Query(ctx, &query, queryVariables)
 		if err != nil {
 			return nil, err
 		}
 
-		for _, n := range query.Repository.Releases.Nodes {
-			releases = append(releases, n)
+		for _, r := range query.Repository.Releases.Nodes {
+			releases = append(releases, *ConvertRelease(&r))
 			if len(releases) == limit {
 				break Loop
 			}

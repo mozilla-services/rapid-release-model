@@ -1,21 +1,11 @@
-package github
+package graphql
 
 import (
 	"context"
-	"time"
 
+	"github.com/mozilla-services/rapid-release-model/pkg/github"
 	"github.com/shurcooL/githubv4"
 )
-
-type PullRequest struct {
-	ID        string
-	Number    int
-	Title     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	ClosedAt  time.Time
-	MergedAt  time.Time
-}
 
 // GraphQL query for GitHub Pull Requests
 type PullRequestsQuery struct {
@@ -35,7 +25,7 @@ type PullRequestsQuery struct {
 }
 
 // QueryPullRequests fetches information about merged PRs from the GitHub GraphQL API
-func QueryPullRequests(gqlClient GraphQLClient, repo *Repo, limit int) ([]PullRequest, error) {
+func (a *API) QueryPullRequests(ctx context.Context, repo *github.Repo, limit int) ([]github.PullRequest, error) {
 	// Values of `first` and `last` must be within 1-100. See `Node limit` in
 	// GitHub's GraphQL API documentation.
 	perPage := limit
@@ -52,19 +42,19 @@ func QueryPullRequests(gqlClient GraphQLClient, repo *Repo, limit int) ([]PullRe
 		"orderBy":   githubv4.IssueOrder{Field: githubv4.IssueOrderFieldUpdatedAt, Direction: githubv4.OrderDirectionDesc},
 	}
 
-	var pullRequests []PullRequest
+	var pullRequests []github.PullRequest
 
 Loop:
 	for {
 		var query PullRequestsQuery
 
-		err := gqlClient.Query(context.Background(), &query, queryVariables)
+		err := a.client.Query(ctx, &query, queryVariables)
 		if err != nil {
 			return nil, err
 		}
 
-		for _, n := range query.Repository.PullRequests.Nodes {
-			pullRequests = append(pullRequests, n)
+		for _, p := range query.Repository.PullRequests.Nodes {
+			pullRequests = append(pullRequests, *ConvertPullRequest(&p))
 			if len(pullRequests) == limit {
 				break Loop
 			}
