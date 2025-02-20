@@ -1,0 +1,50 @@
+package rest
+
+import (
+	"context"
+	"net/http"
+
+	ghrest "github.com/google/go-github/v68/github"
+	"github.com/mozilla-services/rapid-release-model/pkg/github"
+)
+
+// Client defines the capabilities supported by this package.
+type Client interface {
+	CompareCommits(ctx context.Context, owner, repo string, base, head string) (*ghrest.CommitsComparison, *ghrest.Response, error)
+}
+
+// GitHubRESTClient implements the Client interface and forwards calls to the
+// underlying go-github client while converting model types.
+type GitHubRESTClient struct {
+	client *ghrest.Client
+}
+
+func NewGitHubRESTClient(httpClient *http.Client) *GitHubRESTClient {
+	return &GitHubRESTClient{client: ghrest.NewClient(httpClient)}
+}
+
+// Compile-time interface assertions ensure that GitHubRESTClient implements the
+// Client interface. If it fails to satisfy the interface, the compiler will
+// produce an error.
+var (
+	_ Client = (*GitHubRESTClient)(nil)
+)
+
+// API provides access to GitHub's REST API, implementing various capabilities
+// such as comparing commits.
+type API struct {
+	client Client
+}
+
+// NewGitHubRESTAPI creates a new REST API.
+func NewGitHubRESTAPI(client Client) *API {
+	return &API{client: client}
+}
+
+// Compile-time interface assertions ensure that API implements the required
+// service interfaces. If API fails to satisfy any of these interfaces, the
+// compiler will produce an error. This approach enforces interface compliance
+// without requiring runtime checks.
+var (
+	_ github.CommitsComparisonService = (*API)(nil)
+)
