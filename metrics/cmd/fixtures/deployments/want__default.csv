@@ -1,5 +1,5 @@
-description,createdAt,updatedAt,originalEnvironment,latestEnvironment,task,state,commitOid
-Deployment03,2022-05-02T20:25:05Z,2022-05-02T20:25:05Z,prod,prod,deploy,ACTIVE,1abc111
-Deployment03,2022-05-01T20:20:05Z,2022-05-01T20:20:05Z,stage,stage,deploy,ACTIVE,1abc111
-Deployment02,2022-04-01T20:25:05Z,2022-04-01T20:25:05Z,stage,stage,deploy,INACTIVE,2abc111
-Deployment01,2022-02-01T20:25:05Z,2022-02-01T20:25:05Z,hello,hello,deploy,ACTIVE,3abc111
+description,createdAt,updatedAt,originalEnvironment,latestEnvironment,task,state,abbreviatedCommitOid,commitOid
+Deployment03,2022-05-02T20:25:05Z,2022-05-02T20:25:05Z,prod,prod,deploy,ACTIVE,1abc111,1abc111aaaaaaaaaaa
+Deployment03,2022-05-01T20:20:05Z,2022-05-01T20:20:05Z,stage,stage,deploy,ACTIVE,1abc111,1abc111aaaaaaaaaaa
+Deployment02,2022-04-01T20:25:05Z,2022-04-01T20:25:05Z,stage,stage,deploy,INACTIVE,2abc111,2abc111bbbbbbbbbbb
+Deployment01,2022-02-01T20:25:05Z,2022-02-01T20:25:05Z,hello,hello,deploy,ACTIVE,3abc111,3abc111ccccccccccc

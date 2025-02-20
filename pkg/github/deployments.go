@@ -14,9 +14,10 @@ type Deployment struct {
 	OriginalEnvironment string
 	LatestEnvironment   string
 	Task                string
-	State               string
+	State               githubv4.DeploymentState
 	Commit              struct {
 		AbbreviatedOid string
+		Oid            string
 	}
 }
 

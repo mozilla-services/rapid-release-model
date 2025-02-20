@@ -8,7 +8,8 @@
         "Task": "deploy",
         "State": "ACTIVE",
         "Commit": {
-            "AbbreviatedOid": "1abc111"
+            "AbbreviatedOid": "1abc111",
+            "Oid": "1abc111aaaaaaaaaaa"
         }
     },
     {
@@ -20,7 +21,8 @@
         "Task": "deploy",
         "State": "ACTIVE",
         "Commit": {
-            "AbbreviatedOid": "1abc111"
+            "AbbreviatedOid": "1abc111",
+            "Oid": "1abc111aaaaaaaaaaa"
         }
     },
     {
@@ -32,7 +34,8 @@
         "Task": "deploy",
         "State": "INACTIVE",
         "Commit": {
-            "AbbreviatedOid": "2abc111"
+            "AbbreviatedOid": "2abc111",
+            "Oid": "2abc111bbbbbbbbbbb"
         }
     },
     {
@@ -44,7 +47,8 @@
         "Task": "deploy",
         "State": "ACTIVE",
         "Commit": {
-            "AbbreviatedOid": "3abc111"
+            "AbbreviatedOid": "3abc111",
+            "Oid": "3abc111ccccccccccc"
         }
     }
 ]

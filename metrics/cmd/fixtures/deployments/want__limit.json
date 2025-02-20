@@ -8,7 +8,8 @@
         "Task": "deploy",
         "State": "ACTIVE",
         "Commit": {
-            "AbbreviatedOid": "1abc111"
+            "AbbreviatedOid": "1abc111",
+            "Oid": "1abc111aaaaaaaaaaa"
         }
     },
     {
@@ -20,7 +21,8 @@
         "Task": "deploy",
         "State": "ACTIVE",
         "Commit": {
-            "AbbreviatedOid": "1abc111"
+            "AbbreviatedOid": "1abc111",
+            "Oid": "1abc111aaaaaaaaaaa"
         }
     }
 ]
