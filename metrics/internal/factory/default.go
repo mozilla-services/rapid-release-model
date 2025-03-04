@@ -35,11 +35,11 @@ type DefaultFactory struct {
 
 	githubRESTAPI       *rest.API
 	NewGitHubRESTClient func(*http.Client) rest.Client
-	newGitHubRESTAPI    func(rest.Client) (*rest.API, error)
+	newGitHubRESTAPI    func(rest.Client, *slog.Logger) (*rest.API, error)
 
 	githubGraphQLAPI       *graphql.API
 	NewGitHubGraphQLClient func(*http.Client) graphql.Client
-	newGitHubGraphQLAPI    func(graphql.Client) (*graphql.API, error)
+	newGitHubGraphQLAPI    func(graphql.Client, *slog.Logger) (*graphql.API, error)
 
 	grafanaHTTPClient    grafana.HTTPClient
 	NewGrafanaHTTPClient func() (grafana.HTTPClient, error)
@@ -171,10 +171,10 @@ func (f *DefaultFactory) GitHubRestAPI() (*rest.API, error) {
 // ConfigureGitHubRESTAPI initializes and stores a GitHub REST API client.
 // Uses the provided HTTP client to create and configure the REST API.
 // Returns the configured API or an error if initialization fails.
-func (f *DefaultFactory) ConfigureGitHubRESTAPI(httpClient *http.Client) (*rest.API, error) {
+func (f *DefaultFactory) ConfigureGitHubRESTAPI(httpClient *http.Client, logger *slog.Logger) (*rest.API, error) {
 	client := f.NewGitHubRESTClient(httpClient)
 
-	api, err := f.newGitHubRESTAPI(client)
+	api, err := f.newGitHubRESTAPI(client, logger)
 	if err != nil {
 		return nil, fmt.Errorf("error creating GitHub REST API: %w", err)
 	}
@@ -195,10 +195,10 @@ func (f *DefaultFactory) GitHubGraphQLAPI() (*graphql.API, error) {
 // ConfigureGitHubGraphQLAPI initializes and stores a GitHub GraphQL API client.
 // Uses the provided HTTP client to create and configure the GraphQL API.
 // Returns the configured API or an error if initialization fails.
-func (f *DefaultFactory) ConfigureGitHubGraphQLAPI(httpClient *http.Client) (*graphql.API, error) {
+func (f *DefaultFactory) ConfigureGitHubGraphQLAPI(httpClient *http.Client, logger *slog.Logger) (*graphql.API, error) {
 	client := f.NewGitHubGraphQLClient(httpClient)
 
-	api, err := f.newGitHubGraphQLAPI(client)
+	api, err := f.newGitHubGraphQLAPI(client, logger)
 	if err != nil {
 		return nil, fmt.Errorf("error creating GitHub GraphQL API: %w", err)
 	}
@@ -292,16 +292,16 @@ func newGitHubHTTPClient(ctx context.Context) func() (*http.Client, error) {
 }
 
 // create a func to return a new rest.API with the rest.Client.
-func newGitHubRESTAPI(ctx context.Context) func(rest.Client) (*rest.API, error) {
-	return func(client rest.Client) (*rest.API, error) {
-		return rest.NewGitHubRESTAPI(client), nil
+func newGitHubRESTAPI(ctx context.Context) func(rest.Client, *slog.Logger) (*rest.API, error) {
+	return func(client rest.Client, logger *slog.Logger) (*rest.API, error) {
+		return rest.NewGitHubRESTAPI(client, logger), nil
 	}
 }
 
 // create a func to return a new graphql.API with the graphql.Client.
-func newGitHubGraphQLAPI(ctx context.Context) func(graphql.Client) (*graphql.API, error) {
-	return func(client graphql.Client) (*graphql.API, error) {
-		return graphql.NewGitHubGraphQLAPI(client), nil
+func newGitHubGraphQLAPI(ctx context.Context) func(graphql.Client, *slog.Logger) (*graphql.API, error) {
+	return func(client graphql.Client, logger *slog.Logger) (*graphql.API, error) {
+		return graphql.NewGitHubGraphQLAPI(client, logger), nil
 	}
 }
 

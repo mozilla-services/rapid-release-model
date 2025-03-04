@@ -2,6 +2,7 @@ package rest
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	ghrest "github.com/google/go-github/v68/github"
@@ -34,11 +35,12 @@ var (
 // such as comparing commits.
 type API struct {
 	client Client
+	logger *slog.Logger
 }
 
 // NewGitHubRESTAPI creates a new REST API.
-func NewGitHubRESTAPI(client Client) *API {
-	return &API{client: client}
+func NewGitHubRESTAPI(client Client, logger *slog.Logger) *API {
+	return &API{client: client, logger: logger}
 }
 
 // Compile-time interface assertions ensure that API implements the required

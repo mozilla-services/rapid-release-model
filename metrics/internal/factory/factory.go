@@ -36,10 +36,10 @@ type GitHubFactory interface {
 	ConfigureGitHubHTTPClient() (*http.Client, error)
 
 	GitHubRestAPI() (*rest.API, error)
-	ConfigureGitHubRESTAPI(*http.Client) (*rest.API, error)
+	ConfigureGitHubRESTAPI(*http.Client, *slog.Logger) (*rest.API, error)
 
 	GitHubGraphQLAPI() (*graphql.API, error)
-	ConfigureGitHubGraphQLAPI(*http.Client) (*graphql.API, error)
+	ConfigureGitHubGraphQLAPI(*http.Client, *slog.Logger) (*graphql.API, error)
 }
 
 // GrafanaFactory provides methods for configuring Grafana clients and

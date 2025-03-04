@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/mozilla-services/rapid-release-model/pkg/github"
@@ -12,6 +13,7 @@ import (
 // implementing various services such as deployments, pull requests, and releases.
 type API struct {
 	client Client
+	logger *slog.Logger
 }
 
 // Compile-time interface assertions ensure that API implements the required service interfaces.
@@ -30,8 +32,8 @@ type Client interface {
 	Query(ctx context.Context, q interface{}, variables map[string]interface{}) error
 }
 
-func NewGitHubGraphQLAPI(client Client) *API {
-	return &API{client: client}
+func NewGitHubGraphQLAPI(client Client, logger *slog.Logger) *API {
+	return &API{client: client, logger: logger}
 }
 
 func NewGitHubGraphQLClient(httpClient *http.Client) *githubv4.Client {
