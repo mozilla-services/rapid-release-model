@@ -40,6 +40,9 @@ type API struct {
 
 // NewGitHubRESTAPI creates a new REST API.
 func NewGitHubRESTAPI(client Client, logger *slog.Logger) *API {
+	if logger == nil {
+		logger = slog.Default()
+	}
 	return &API{client: client, logger: logger}
 }
 
