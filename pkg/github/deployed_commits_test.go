@@ -295,7 +295,7 @@ func registerGraphQLresponses(t *testing.T, c *test.FakeGraphQLClient) {
 
 	c.RegisterResponse(
 		test.GraphQLQueryKey{
-			QueryType: "*graphql.DeployedCommitsQuery",
+			QueryType: "*graphql.DeploymentQuery",
 			RepoOwner: "hackebrot",
 			RepoName:  "turtle",
 			Extra:     test.GraphQLQueryKeyExtra{Environments: "stage"},
@@ -341,7 +341,7 @@ func registerGraphQLresponses(t *testing.T, c *test.FakeGraphQLClient) {
 
 	c.RegisterResponse(
 		test.GraphQLQueryKey{
-			QueryType: "*graphql.DeployedCommitsQuery",
+			QueryType: "*graphql.DeploymentQuery",
 			RepoOwner: "hackebrot",
 			RepoName:  "turtle",
 			Extra:     test.GraphQLQueryKeyExtra{Environments: "stage"},
@@ -387,7 +387,7 @@ func registerGraphQLresponses(t *testing.T, c *test.FakeGraphQLClient) {
 
 	c.RegisterResponse(
 		test.GraphQLQueryKey{
-			QueryType: "*graphql.DeployedCommitsQuery",
+			QueryType: "*graphql.DeploymentQuery",
 			RepoOwner: "hackebrot",
 			RepoName:  "turtle",
 			Extra:     test.GraphQLQueryKeyExtra{Environments: "prod"},
@@ -400,7 +400,7 @@ func registerGraphQLresponses(t *testing.T, c *test.FakeGraphQLClient) {
 
 	c.RegisterResponse(
 		test.GraphQLQueryKey{
-			QueryType: "*graphql.DeployedCommitsQuery",
+			QueryType: "*graphql.DeploymentQuery",
 			RepoOwner: "hackebrot",
 			RepoName:  "turtle",
 			Extra:     test.GraphQLQueryKeyExtra{Environments: "helloworld"},

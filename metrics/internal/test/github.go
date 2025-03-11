@@ -51,7 +51,7 @@ func (c *FakeGitHubGraphQLClient) Query(ctx context.Context, q interface{}, vari
 		key = "releases"
 	case *graphql.DeploymentsQuery:
 		key = "deployments"
-	case *graphql.DeployedCommitsQuery:
+	case *graphql.DeploymentQuery:
 		key = "deployed-commits"
 	default:
 		return fmt.Errorf("unsupported query: %+v", v)

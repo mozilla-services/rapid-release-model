@@ -9,21 +9,7 @@ import (
 	"github.com/shurcooL/githubv4"
 )
 
-type DeployedCommitsQuery struct {
-	Repository struct {
-		Name  string
-		Owner struct {
-			Login string
-		}
-		Deployments struct {
-			PageInfo struct {
-				HasNextPage bool
-				EndCursor   string
-			}
-			Nodes []Deployment
-		} `graphql:"deployments(first: $perPage, after: $endCursor, orderBy: $orderBy, environments: $environments)"`
-	} `graphql:"repository(owner: $owner, name: $name)"`
-}
+type DeploymentQuery DeploymentsQuery
 
 // QueryDeployment fetches Deployments from the GitHub GraphQL API and uses that
 // to search for a deployment matching the given commit SHA.
@@ -57,7 +43,7 @@ func (a *API) QueryDeployment(ctx context.Context, repo *github.Repo, env string
 	var counter int
 
 	for {
-		var query DeployedCommitsQuery
+		var query DeploymentQuery
 		err := a.client.Query(ctx, &query, queryVariables)
 		if err != nil {
 			return nil, nil, err
