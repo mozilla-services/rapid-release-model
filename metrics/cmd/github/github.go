@@ -25,7 +25,7 @@ type githubConfig struct {
 	restAPI    *rest.API
 }
 
-func (c *githubConfig) configureAPIs(f Factory, logger *slog.Logger) error {
+func (c *githubConfig) configureAPIs(f Factory) error {
 	var err error
 
 	httpClient, err := f.ConfigureGitHubHTTPClient()
@@ -33,11 +33,11 @@ func (c *githubConfig) configureAPIs(f Factory, logger *slog.Logger) error {
 		return fmt.Errorf("error initializing GitHub HTTP client: %w", err)
 	}
 
-	if c.restAPI, err = f.ConfigureGitHubRESTAPI(httpClient, logger); err != nil {
+	if c.restAPI, err = f.ConfigureGitHubRESTAPI(httpClient, c.logger); err != nil {
 		return fmt.Errorf("error initializing GitHub REST API: %w", err)
 	}
 
-	if c.graphqlAPI, err = f.ConfigureGitHubGraphQLAPI(httpClient, logger); err != nil {
+	if c.graphqlAPI, err = f.ConfigureGitHubGraphQLAPI(httpClient, c.logger); err != nil {
 		return fmt.Errorf("error initializing GitHub GraphQL API: %w", err)
 	}
 
@@ -69,7 +69,7 @@ func NewGitHubCmd(f Factory) *cobra.Command {
 			}
 			f.ConfigureGitHubRepo(config.repo.Owner, config.repo.Name)
 
-			if err := config.configureAPIs(f, config.logger); err != nil {
+			if err := config.configureAPIs(f); err != nil {
 				return fmt.Errorf("error configuring GitHub APIs: %w", err)
 			}
 
