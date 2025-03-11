@@ -28,7 +28,7 @@ type Commit struct {
 
 // Represents a Git Commit Comparison
 type CommitsComparison struct {
-	TotalCommits *int
+	TotalCommits int
 	Commits      []*Commit
 }
 
@@ -43,6 +43,12 @@ type Deployment struct {
 	State               string
 	Ref                 string
 	Commit              *Commit
+}
+
+// DeploymentWithCommits represents a deployment along with its associated deployed commits.
+type DeploymentWithCommits struct {
+	*Deployment
+	DeployedCommits []*Commit
 }
 
 // Unified GitHub PullRequest Model (used for both REST & GraphQL API)

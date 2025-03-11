@@ -79,7 +79,7 @@ func TestDeployments(t *testing.T) {
 	}, {
 		Name:    "deployments__env__debug",
 		Args:    []string{"github", "-o", repo.Owner, "-n", repo.Name, "deployments", "--env", "prod", "--debug"},
-		WantLog: "level=DEBUG msg=runDeployments github.DeploymentsService=*graphql.API repo=hackebrot/turtle envs=[prod]",
+		WantLog: "level=DEBUG msg=cmd.runDeployments github.DeploymentsService=*graphql.API config.repo=hackebrot/turtle config.envs=[prod] config.limit=10",
 		Env:     env,
 	}}
 

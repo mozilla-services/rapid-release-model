@@ -21,6 +21,7 @@ type API struct {
 // This approach enforces interface compliance without requiring runtime checks.
 var (
 	_ github.DeploymentsService   = (*API)(nil)
+	_ github.DeploymentService    = (*API)(nil)
 	_ github.PullRequestsService  = (*API)(nil)
 	_ github.ReleasesService      = (*API)(nil)
 	_ github.RefComparisonService = (*API)(nil)

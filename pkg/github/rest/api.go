@@ -11,7 +11,7 @@ import (
 
 // Client defines the capabilities supported by this package.
 type Client interface {
-	CompareCommits(ctx context.Context, owner, repo string, base, head string) (*ghrest.CommitsComparison, *ghrest.Response, error)
+	CompareCommits(ctx context.Context, owner, repo string, base, head string, opts *ghrest.ListOptions) (*ghrest.CommitsComparison, *ghrest.Response, error)
 }
 
 // GitHubRESTClient implements the Client interface and forwards calls to the
@@ -21,7 +21,9 @@ type GitHubRESTClient struct {
 }
 
 func NewGitHubRESTClient(httpClient *http.Client) *GitHubRESTClient {
-	return &GitHubRESTClient{client: ghrest.NewClient(httpClient)}
+	return &GitHubRESTClient{
+		client: ghrest.NewClient(httpClient),
+	}
 }
 
 // Compile-time interface assertions ensure that GitHubRESTClient implements the

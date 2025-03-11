@@ -14,6 +14,11 @@ type DeploymentsService interface {
 	QueryDeployments(ctx context.Context, repo *Repo, envs *[]string, limit int) ([]Deployment, error)
 }
 
+// DeploymentService provides access to GitHub Deployment functionality.
+type DeploymentService interface {
+	QueryDeployment(ctx context.Context, repo *Repo, env string, sha string, searchLimit int) (*Deployment, *Deployment, error)
+}
+
 // ReleasesService provides access to GitHub Release functionality.
 type ReleasesService interface {
 	QueryReleases(ctx context.Context, repo *Repo, limit int) ([]Release, error)

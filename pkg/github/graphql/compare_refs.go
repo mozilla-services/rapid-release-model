@@ -55,9 +55,9 @@ Loop:
 			return nil, err
 		}
 
-		comparison.TotalCommits = &query.Repository.Ref.Compare.Commits.TotalCount
+		comparison.TotalCommits = query.Repository.Ref.Compare.Commits.TotalCount
 
-		if *comparison.TotalCommits == 0 {
+		if comparison.TotalCommits == 0 {
 			return nil, fmt.Errorf("no commits between refs %s..%s", base, head)
 		}
 
