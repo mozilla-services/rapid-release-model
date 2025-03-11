@@ -3,6 +3,7 @@ package test
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io"
 	"log/slog"
 	"net/http"
@@ -14,6 +15,14 @@ import (
 	"github.com/mozilla-services/rapid-release-model/pkg/github/graphql"
 	"github.com/spf13/cobra"
 )
+
+// noopTransport is an http.RoundTripper that blocks all outgoing HTTP requests.
+type noopTransport struct{}
+
+// RoundTrip prevents any HTTP requests from being sent.
+func (n *noopTransport) RoundTrip(*http.Request) (*http.Response, error) {
+	return nil, errors.New("outgoing HTTP requests are blocked in tests")
+}
 
 // create a func to return a new structured logger.
 func newLogger(w io.Writer) func(io.Writer, slog.Level) *slog.Logger {
@@ -65,6 +74,15 @@ func ExecuteCmd(newCmd func(factory.Factory) *cobra.Command, args []string, want
 
 	// Overwrite NewLogger, so that we log to logbuf
 	f.NewLogger = newLogger(logbuf)
+
+	// Override NewGitHubHTTPClient to return an http.Client that prevents
+	// outgoing GitHub API requests while satisfying the factory. Without this,
+	// the factory fails to configure the GitHub GraphQL and REST API clients due
+	// to a missing GitHub token environment variable. Fake API clients in tests
+	// do not use this http.Client.
+	f.NewGitHubHTTPClient = func() (*http.Client, error) {
+		return &http.Client{Transport: &noopTransport{}}, nil
+	}
 
 	// Overwrite NewGitHubGraphQLClient to return a fake client that returns
 	// canned responses (fixtures) rather than sending queries to the live

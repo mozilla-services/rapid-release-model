@@ -37,7 +37,7 @@ type DefaultFactory struct {
 	newGitHubRepo func(string, string) *github.Repo
 
 	githubHTTPClient    *http.Client
-	newGitHubHTTPClient func() (*http.Client, error)
+	NewGitHubHTTPClient func() (*http.Client, error)
 
 	githubRESTAPI       *rest.API
 	NewGitHubRESTClient func(*http.Client) rest.Client
@@ -59,7 +59,7 @@ func NewDefaultFactory(ctx context.Context) *DefaultFactory {
 	f.NewExporter = newExporter()
 
 	f.newGitHubRepo = newGitHubRepo()
-	f.newGitHubHTTPClient = newGitHubHTTPClient(ctx)
+	f.NewGitHubHTTPClient = newGitHubHTTPClient(ctx)
 	f.NewGitHubRESTClient = newGitHubRESTClient(ctx)
 	f.newGitHubRESTAPI = newGitHubRESTAPI(ctx)
 	f.NewGitHubGraphQLClient = newGitHubGraphQLClient(ctx)
@@ -161,7 +161,7 @@ func (f *DefaultFactory) GitHubHTTPClient() (*http.Client, error) {
 // ConfigureGitHubHTTPClient initializes and stores a GitHub HTTP client.
 // Returns an error if creation fails.
 func (f *DefaultFactory) ConfigureGitHubHTTPClient() error {
-	httpClient, err := f.newGitHubHTTPClient()
+	httpClient, err := f.NewGitHubHTTPClient()
 	if err != nil {
 		return fmt.Errorf("error creating a GitHub HTTP client: %w", err)
 	}

@@ -18,7 +18,7 @@ func TestNewDefaultFactory_FunctionFieldsNotNil(t *testing.T) {
 		{"NewExporter", f.NewExporter},
 		{"newEncoder", f.newEncoder},
 		{"newGitHubRepo", f.newGitHubRepo},
-		{"newGitHubHTTPClient", f.newGitHubHTTPClient},
+		{"newGitHubHTTPClient", f.NewGitHubHTTPClient},
 		{"NewGitHubRESTClient", f.NewGitHubRESTClient},
 		{"newGitHubRESTAPI", f.newGitHubRESTAPI},
 		{"NewGitHubGraphQLClient", f.NewGitHubGraphQLClient},
