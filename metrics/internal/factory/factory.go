@@ -50,3 +50,12 @@ type GrafanaFactory interface {
 	GrafanaHubHTTPClient() (grafana.HTTPClient, error)
 	ConfigureGrafanaHubHTTPClient() error
 }
+
+// Factory combines interfaces for configuring logging, encoding, exporting,
+// GitHub API clients, and Grafana clients, providing a unified setup for
+// dependencies.
+type Factory interface {
+	GenericFactory
+	GitHubFactory
+	GrafanaFactory
+}

@@ -17,15 +17,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// Compile-time interface assertions ensure that DefaultFactory implements the
-// various factory interfaces. If DefaultFactory fails to satisfy any of these
-// interfaces, the compiler will produce an error. This approach enforces
-// interface compliance without requiring runtime checks.
-var (
-	_ GenericFactory = (*DefaultFactory)(nil)
-	_ GitHubFactory  = (*DefaultFactory)(nil)
-	_ GrafanaFactory = (*DefaultFactory)(nil)
-)
+// Compile-time interface assertion ensures that DefaultFactory implements the
+// Factory interface. If DefaultFactory fails to satisfy this interface, the
+// compiler will produce an error. This approach enforces interface compliance
+// without requiring runtime checks.
+var _ Factory = (*DefaultFactory)(nil)
 
 type DefaultFactory struct {
 	logger    *slog.Logger

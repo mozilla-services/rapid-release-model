@@ -21,7 +21,7 @@ type metricsOptions struct {
 }
 
 // NewRootCmd creates a new base command for the metrics CLI app
-func NewRootCmd(f *factory.DefaultFactory) *cobra.Command {
+func NewRootCmd(f factory.Factory) *cobra.Command {
 	opts := new(metricsOptions)
 
 	rootCmd := &cobra.Command{

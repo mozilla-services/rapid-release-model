@@ -48,7 +48,7 @@ type TestCase struct {
 }
 
 // RunTests is a helper function for table-driven tests using subtests
-func RunTests(t *testing.T, newCmd func(*factory.DefaultFactory) *cobra.Command, tests []TestCase) {
+func RunTests(t *testing.T, newCmd func(factory.Factory) *cobra.Command, tests []TestCase) {
 	t.Helper()
 
 	for _, tt := range tests {

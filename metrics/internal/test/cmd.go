@@ -52,7 +52,7 @@ func newGitHubGraphQLClient(wantReqParams *WantReqParams) func(*http.Client) gra
 }
 
 // ExecuteCmd uses the passed in function to create a command and execute it
-func ExecuteCmd(newCmd func(*factory.DefaultFactory) *cobra.Command, args []string, wantReqParams *WantReqParams) (string, string, error) {
+func ExecuteCmd(newCmd func(factory.Factory) *cobra.Command, args []string, wantReqParams *WantReqParams) (string, string, error) {
 	ctx := context.Background()
 	buf := new(bytes.Buffer)
 	logbuf := new(bytes.Buffer)
