@@ -8,7 +8,6 @@ import (
 
 	"github.com/mozilla-services/rapid-release-model/metrics/cmd/github"
 	"github.com/mozilla-services/rapid-release-model/metrics/cmd/grafana"
-	"github.com/mozilla-services/rapid-release-model/metrics/internal/export"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/factory"
 	"github.com/spf13/cobra"
 )
@@ -21,15 +20,9 @@ type metricsOptions struct {
 	debug bool
 }
 
-type rootCmdConfig struct {
-	logger   *slog.Logger
-	exporter export.Exporter
-}
-
 // NewRootCmd creates a new base command for the metrics CLI app
 func NewRootCmd(f *factory.DefaultFactory) *cobra.Command {
 	opts := new(metricsOptions)
-	config := new(rootCmdConfig)
 
 	rootCmd := &cobra.Command{
 		Use:   "metrics",
@@ -40,18 +33,16 @@ func NewRootCmd(f *factory.DefaultFactory) *cobra.Command {
 			if opts.debug {
 				logLevel = slog.LevelDebug
 			}
-			config.logger = f.ConfigureLogger(os.Stderr, logLevel)
 
-			encoder, err := f.ConfigureEncoder(opts.exporter.Encoding)
-			if err != nil {
+			f.ConfigureLogger(os.Stderr, logLevel)
+
+			if err := f.ConfigureEncoder(opts.exporter.Encoding); err != nil {
 				return fmt.Errorf("error configuring encoder: %w", err)
 			}
 
-			exporter, err := f.ConfigureExporter(opts.exporter.Filename, encoder)
-			if err != nil {
+			if err := f.ConfigureExporter(opts.exporter.Filename); err != nil {
 				return fmt.Errorf("error configuring exporter: %w", err)
 			}
-			config.exporter = exporter
 
 			return nil
 		},

@@ -41,9 +41,13 @@ func NewGrafanaCmd(f Factory) *cobra.Command {
 			}
 			config.exporter = exporter
 
-			client, err := f.ConfigureGrafanaHubHTTPClient()
-			if err != nil {
+			if err := f.ConfigureGrafanaHubHTTPClient(); err != nil {
 				return fmt.Errorf("error configuring Grafana HTTP client: %w", err)
+			}
+
+			client, err := f.GrafanaHubHTTPClient()
+			if err != nil {
+				return fmt.Errorf("error retrieving Grafana HTTP client: %w", err)
 			}
 			config.client = client
 

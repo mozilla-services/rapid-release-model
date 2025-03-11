@@ -17,6 +17,16 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Compile-time interface assertions ensure that DefaultFactory implements the
+// various factory interfaces. If DefaultFactory fails to satisfy any of these
+// interfaces, the compiler will produce an error. This approach enforces
+// interface compliance without requiring runtime checks.
+var (
+	_ GenericFactory = (*DefaultFactory)(nil)
+	_ GitHubFactory  = (*DefaultFactory)(nil)
+	_ GrafanaFactory = (*DefaultFactory)(nil)
+)
+
 type DefaultFactory struct {
 	logger    *slog.Logger
 	NewLogger func(io.Writer, slog.Level) *slog.Logger
@@ -65,9 +75,8 @@ func NewDefaultFactory(ctx context.Context) *DefaultFactory {
 }
 
 // ConfigureLogger sets the logger using the given writer and level.
-func (f *DefaultFactory) ConfigureLogger(w io.Writer, l slog.Level) *slog.Logger {
+func (f *DefaultFactory) ConfigureLogger(w io.Writer, l slog.Level) {
 	f.logger = f.NewLogger(w, l)
-	return f.logger
 }
 
 // Logger returns the configured logger or an error if it is unset.
@@ -79,14 +88,14 @@ func (f *DefaultFactory) Logger() (*slog.Logger, error) {
 }
 
 // ConfigureEncoder sets the logger using the given writer and level.
-func (f *DefaultFactory) ConfigureEncoder(e string) (export.Encoder, error) {
+func (f *DefaultFactory) ConfigureEncoder(e string) error {
 	encoder, err := f.newEncoder(e)
 	if err != nil {
-		return nil, fmt.Errorf("error creating a new encoder: %w", err)
+		return fmt.Errorf("error creating a new encoder: %w", err)
 	}
 	f.encoder = encoder
 
-	return f.encoder, nil
+	return nil
 }
 
 // Encoder returns the configured encoder or an error if it is unset.
@@ -97,14 +106,20 @@ func (f *DefaultFactory) Encoder() (export.Encoder, error) {
 	return f.encoder, nil
 }
 
-func (f *DefaultFactory) ConfigureExporter(filename string, encoder export.Encoder) (export.Exporter, error) {
+// ConfigureExporter initializes and stores an Exporter.
+func (f *DefaultFactory) ConfigureExporter(filename string) error {
+	encoder, err := f.Encoder()
+	if err != nil {
+		return fmt.Errorf("error retrieving encoder from factory: %w", err)
+	}
+
 	exporter, err := f.NewExporter(filename, encoder)
 	if err != nil {
-		return nil, fmt.Errorf("error creating exporter: %w", err)
+		return fmt.Errorf("error creating exporter: %w", err)
 	}
 	f.exporter = exporter
 
-	return f.exporter, nil
+	return nil
 }
 
 // Exporter returns the configured exporter or an error if it is unset.
@@ -116,9 +131,8 @@ func (f *DefaultFactory) Exporter() (export.Exporter, error) {
 }
 
 // ConfigureGitHubRepo sets the repo using the given owner and name.
-func (f *DefaultFactory) ConfigureGitHubRepo(owner, name string) *github.Repo {
+func (f *DefaultFactory) ConfigureGitHubRepo(owner, name string) {
 	f.githubRepo = f.newGitHubRepo(owner, name)
-	return f.githubRepo
 }
 
 // GitHubRepo returns the configured repo or an error if it is unset.
@@ -149,14 +163,14 @@ func (f *DefaultFactory) GitHubHTTPClient() (*http.Client, error) {
 }
 
 // ConfigureGitHubHTTPClient initializes and stores a GitHub HTTP client.
-// Returns the client or an error if creation fails.
-func (f *DefaultFactory) ConfigureGitHubHTTPClient() (*http.Client, error) {
+// Returns an error if creation fails.
+func (f *DefaultFactory) ConfigureGitHubHTTPClient() error {
 	httpClient, err := f.newGitHubHTTPClient()
 	if err != nil {
-		return nil, fmt.Errorf("error creating a GitHub HTTP client: %w", err)
+		return fmt.Errorf("error creating a GitHub HTTP client: %w", err)
 	}
 	f.githubHTTPClient = httpClient
-	return f.githubHTTPClient, nil
+	return nil
 }
 
 // GitHubRestAPI returns the configured GitHub REST API or an error if it
@@ -169,18 +183,28 @@ func (f *DefaultFactory) GitHubRestAPI() (*rest.API, error) {
 }
 
 // ConfigureGitHubRESTAPI initializes and stores a GitHub REST API client.
-// Uses the provided HTTP client to create and configure the REST API.
-// Returns the configured API or an error if initialization fails.
-func (f *DefaultFactory) ConfigureGitHubRESTAPI(httpClient *http.Client, logger *slog.Logger) (*rest.API, error) {
+// Uses the factory's HTTP client to create and configure the REST API.
+// Returns an error if initialization fails.
+func (f *DefaultFactory) ConfigureGitHubRESTAPI() error {
+	httpClient, err := f.GitHubHTTPClient()
+	if err != nil {
+		return fmt.Errorf("error retrieving GitHub HTTP client from factory: %w", err)
+	}
+
+	logger, err := f.Logger()
+	if err != nil {
+		return fmt.Errorf("error retrieving logger from factory: %w", err)
+	}
+
 	client := f.NewGitHubRESTClient(httpClient)
 
 	api, err := f.newGitHubRESTAPI(client, logger)
 	if err != nil {
-		return nil, fmt.Errorf("error creating GitHub REST API: %w", err)
+		return fmt.Errorf("error creating GitHub REST API: %w", err)
 	}
 	f.githubRESTAPI = api
 
-	return f.githubRESTAPI, nil
+	return nil
 }
 
 // GitHubGraphQLAPI returns the configured GitHub GraphQL API or an error if it
@@ -193,18 +217,28 @@ func (f *DefaultFactory) GitHubGraphQLAPI() (*graphql.API, error) {
 }
 
 // ConfigureGitHubGraphQLAPI initializes and stores a GitHub GraphQL API client.
-// Uses the provided HTTP client to create and configure the GraphQL API.
-// Returns the configured API or an error if initialization fails.
-func (f *DefaultFactory) ConfigureGitHubGraphQLAPI(httpClient *http.Client, logger *slog.Logger) (*graphql.API, error) {
+// Uses the factory's HTTP client to create and configure the GraphQL API.
+// Returns an error if initialization fails.
+func (f *DefaultFactory) ConfigureGitHubGraphQLAPI() error {
+	httpClient, err := f.GitHubHTTPClient()
+	if err != nil {
+		return fmt.Errorf("error retrieving GitHub HTTP client from factory: %w", err)
+	}
+
+	logger, err := f.Logger()
+	if err != nil {
+		return fmt.Errorf("error retrieving logger from factory: %w", err)
+	}
+
 	client := f.NewGitHubGraphQLClient(httpClient)
 
 	api, err := f.newGitHubGraphQLAPI(client, logger)
 	if err != nil {
-		return nil, fmt.Errorf("error creating GitHub GraphQL API: %w", err)
+		return fmt.Errorf("error creating GitHub GraphQL API: %w", err)
 	}
 	f.githubGraphQLAPI = api
 
-	return f.githubGraphQLAPI, nil
+	return nil
 }
 
 func (f *DefaultFactory) DefaultGrafanaAnnotationsFilter() *grafana.AnnotationsFilter {
@@ -216,13 +250,13 @@ func (f *DefaultFactory) DefaultGrafanaAnnotationsFilter() *grafana.AnnotationsF
 	return filter
 }
 
-func (f *DefaultFactory) ConfigureGrafanaHubHTTPClient() (grafana.HTTPClient, error) {
+func (f *DefaultFactory) ConfigureGrafanaHubHTTPClient() error {
 	client, err := f.NewGrafanaHTTPClient()
 	if err != nil {
-		return nil, fmt.Errorf("error creating Grafana HTTP Client: %w", err)
+		return fmt.Errorf("error creating Grafana HTTP Client: %w", err)
 	}
 	f.grafanaHTTPClient = client
-	return f.grafanaHTTPClient, nil
+	return nil
 }
 
 func (f *DefaultFactory) GrafanaHubHTTPClient() (grafana.HTTPClient, error) {

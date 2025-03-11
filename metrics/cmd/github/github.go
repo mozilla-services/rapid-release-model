@@ -28,17 +28,24 @@ type githubConfig struct {
 func (c *githubConfig) configureAPIs(f Factory) error {
 	var err error
 
-	httpClient, err := f.ConfigureGitHubHTTPClient()
-	if err != nil {
+	if err = f.ConfigureGitHubHTTPClient(); err != nil {
 		return fmt.Errorf("error initializing GitHub HTTP client: %w", err)
 	}
 
-	if c.restAPI, err = f.ConfigureGitHubRESTAPI(httpClient, c.logger); err != nil {
+	if err = f.ConfigureGitHubRESTAPI(); err != nil {
 		return fmt.Errorf("error initializing GitHub REST API: %w", err)
 	}
 
-	if c.graphqlAPI, err = f.ConfigureGitHubGraphQLAPI(httpClient, c.logger); err != nil {
+	if c.restAPI, err = f.GitHubRestAPI(); err != nil {
+		return fmt.Errorf("error retrieving GitHub REST API: %w", err)
+	}
+
+	if err = f.ConfigureGitHubGraphQLAPI(); err != nil {
 		return fmt.Errorf("error initializing GitHub GraphQL API: %w", err)
+	}
+
+	if c.graphqlAPI, err = f.GitHubGraphQLAPI(); err != nil {
+		return fmt.Errorf("error retrieving GitHub GraphQL API: %w", err)
 	}
 
 	return nil
