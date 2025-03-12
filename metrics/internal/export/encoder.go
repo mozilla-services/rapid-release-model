@@ -62,6 +62,8 @@ func (c *CSVEncoder) Encode(w io.Writer, v interface{}) error {
 		records = DeploymentsToCSVRecords(v)
 	case map[string][]*github.DeploymentWithCommits:
 		records = DeploymentsWithCommitsToCSVRecords(v)
+	case *github.DeploymentWithCommits:
+		records = DeploymentWithCommitsToCSVRecords(v)
 	default:
 		return fmt.Errorf("unable to export type %T to CSV", v)
 	}
@@ -205,6 +207,44 @@ func DeploymentsToCSVRecords(ds []github.Deployment) [][]string {
 		}
 		records = append(records, record)
 	}
+	return records
+}
+
+func DeploymentWithCommitsToCSVRecords(d *github.DeploymentWithCommits) [][]string {
+	var records [][]string
+
+	// Add column headers to records
+	records = append(records, []string{
+		"description",
+		"createdAt",
+		"updatedAt",
+		"originalEnvironment",
+		"latestEnvironment",
+		"task",
+		"state",
+		"abbreviatedCommitSHA",
+		"commitSHA",
+		"deployedCommits",
+	})
+
+	var deployedSHAs []string
+	for _, commit := range d.DeployedCommits {
+		deployedSHAs = append(deployedSHAs, commit.SHA)
+	}
+
+	record := []string{
+		d.Description,
+		d.CreatedAt.Format(time.RFC3339),
+		d.UpdatedAt.Format(time.RFC3339),
+		d.OriginalEnvironment,
+		d.LatestEnvironment,
+		d.Task,
+		string(d.State),
+		string(d.Commit.AbbreviatedSHA),
+		string(d.Commit.SHA),
+		strings.Join(deployedSHAs, ","),
+	}
+	records = append(records, record)
 	return records
 }
 
