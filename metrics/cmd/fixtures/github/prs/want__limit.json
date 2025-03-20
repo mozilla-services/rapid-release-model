@@ -1,6 +1,5 @@
 [
     {
-        "ID": "PULLREQUEST1",
         "Number": 1,
         "Title": "Set up CI/CD workflow 📦",
         "CreatedAt": "2023-09-08T16:33:20Z",
@@ -9,7 +8,6 @@
         "MergedAt": "2023-09-10T07:24:16Z"
     },
     {
-        "ID": "PULLREQUEST2",
         "Number": 2,
         "Title": "Refactor test framework 🤖",
         "CreatedAt": "2023-09-08T09:18:42Z",

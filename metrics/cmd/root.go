@@ -3,65 +3,56 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 
+	"github.com/mozilla-services/rapid-release-model/metrics/cmd/github"
 	"github.com/mozilla-services/rapid-release-model/metrics/cmd/grafana"
-	"github.com/mozilla-services/rapid-release-model/metrics/internal/export"
 	"github.com/mozilla-services/rapid-release-model/metrics/internal/factory"
 	"github.com/spf13/cobra"
 )
 
-type MetricsOptions struct {
-	Export struct {
+type metricsOptions struct {
+	exporter struct {
 		Encoding string
 		Filename string
 	}
+	debug bool
 }
 
-// newRootCmd creates a new base command for the metrics CLI app
-func newRootCmd(f *factory.Factory) *cobra.Command {
-	opts := new(MetricsOptions)
+// NewRootCmd creates a new base command for the metrics CLI app
+func NewRootCmd(f factory.Factory) *cobra.Command {
+	opts := new(metricsOptions)
 
 	rootCmd := &cobra.Command{
 		Use:   "metrics",
 		Short: "Retrieve data for measuring software delivery performance.",
 		Long:  "Retrieve data for measuring software delivery performance.",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			switch opts.Export.Encoding {
-			case "json":
-				f.NewEncoder = func() (export.Encoder, error) {
-					return export.NewJSONEncoder()
-				}
-			case "csv":
-				f.NewEncoder = func() (export.Encoder, error) {
-					return export.NewCSVEncoder()
-				}
-			case "plain":
-				f.NewEncoder = func() (export.Encoder, error) {
-					return export.NewPlainEncoder()
-				}
-			default:
-				return fmt.Errorf("unsupported Export.Encoding. Please use 'json', 'csv', or 'plain'.")
+			logLevel := slog.LevelInfo
+			if opts.debug {
+				logLevel = slog.LevelDebug
 			}
 
-			if opts.Export.Filename != "" {
-				f.NewExporter = func() (export.Exporter, error) {
-					encoder, err := f.NewEncoder()
-					if err != nil {
-						return nil, err
-					}
-					return export.NewFileExporter(encoder, opts.Export.Filename)
-				}
+			f.ConfigureLogger(os.Stderr, logLevel)
+
+			if err := f.ConfigureEncoder(opts.exporter.Encoding); err != nil {
+				return fmt.Errorf("error configuring encoder: %w", err)
+			}
+
+			if err := f.ConfigureExporter(opts.exporter.Filename); err != nil {
+				return fmt.Errorf("error configuring exporter: %w", err)
 			}
 
 			return nil
 		},
 	}
 
-	rootCmd.PersistentFlags().StringVarP(&opts.Export.Encoding, "encoding", "e", "json", "export encoding")
-	rootCmd.PersistentFlags().StringVarP(&opts.Export.Filename, "filename", "f", "", "export to file")
+	rootCmd.PersistentFlags().StringVarP(&opts.exporter.Encoding, "encoding", "e", "json", "export encoding")
+	rootCmd.PersistentFlags().StringVarP(&opts.exporter.Filename, "filename", "f", "", "export to file")
+	rootCmd.PersistentFlags().BoolVar(&opts.debug, "debug", false, "Enable debug logging")
 
-	rootCmd.AddCommand(newGitHubCmd(f))
+	rootCmd.AddCommand(github.NewGitHubCmd(f))
 	rootCmd.AddCommand(grafana.NewGrafanaCmd(f))
 
 	return rootCmd
@@ -70,8 +61,8 @@ func newRootCmd(f *factory.Factory) *cobra.Command {
 // Execute the CLI application and write errors to os.Stderr
 func Execute() {
 	ctx := context.Background()
-	factory := factory.NewFactory(ctx)
-	rootCmd := newRootCmd(factory)
+	factory := factory.NewDefaultFactory(ctx)
+	rootCmd := NewRootCmd(factory)
 	if err := rootCmd.ExecuteContext(ctx); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)

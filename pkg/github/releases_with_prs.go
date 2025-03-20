@@ -5,10 +5,10 @@ import (
 	"strconv"
 )
 
-// ReleaseWithPRs embeds a GitHub GraphQL API Release object with an added slice
-// of PR numbers, which we have parsed from its auto-generated release notes.
+// ReleaseWithPRs embeds a GitHub Release object with an added slice of PR
+// numbers, which we have parsed from its auto-generated release notes.
 type ReleaseWithPRs struct {
-	Release
+	*Release
 	PRs []int
 }
 
@@ -33,5 +33,5 @@ func NewReleaseWithPRs(r *Release) *ReleaseWithPRs {
 		}
 	}
 
-	return &ReleaseWithPRs{*r, prs}
+	return &ReleaseWithPRs{r, prs}
 }

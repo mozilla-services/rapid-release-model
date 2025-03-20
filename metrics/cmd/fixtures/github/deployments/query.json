@@ -20,7 +20,10 @@
                     "State": "ACTIVE",
                     "Commit": {
                         "AbbreviatedOid": "1abc111",
-                        "Oid": "1abc111aaaaaaaaaaa"
+                        "Oid": "1abc111aaaaaaaaaaa",
+                        "AuthoredDate": "2022-05-01T20:18:05Z",
+                        "CommittedDate": "2022-05-01T20:18:05Z",
+                        "Message": "commit changes 333"
                     }
                 },
                 {
@@ -33,7 +36,10 @@
                     "State": "ACTIVE",
                     "Commit": {
                         "AbbreviatedOid": "1abc111",
-                        "Oid": "1abc111aaaaaaaaaaa"
+                        "Oid": "1abc111aaaaaaaaaaa",
+                        "AuthoredDate": "2022-05-01T20:18:05Z",
+                        "CommittedDate": "2022-05-01T20:18:05Z",
+                        "Message": "commit changes 333"
                     }
                 },
                 {
@@ -46,7 +52,21 @@
                     "State": "INACTIVE",
                     "Commit": {
                         "AbbreviatedOid": "2abc111",
-                        "Oid": "2abc111bbbbbbbbbbb"
+                        "Oid": "2abc111bbbbbbbbbbb",
+                        "AuthoredDate": "2022-04-01T20:24:05Z",
+                        "CommittedDate": "2022-04-01T20:24:05Z",
+                        "Message": "commit changes 2222",
+                        "Parents": {
+                            "Nodes": [
+                                {
+                                    "AbbreviatedOid": "3abc111",
+                                    "Oid": "3abc111ccccccccccc",
+                                    "AuthoredDate": "2022-02-01T18:25:05Z",
+                                    "CommittedDate": "2022-02-01T18:25:05Z",
+                                    "Message": "commit changes"
+                                }
+                            ]
+                        }
                     }
                 }
             ]

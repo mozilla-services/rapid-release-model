@@ -22,5 +22,5 @@ func TestRoot(t *testing.T) {
 		},
 	}
 
-	test.RunTests(t, newRootCmd, tests)
+	test.RunTests(t, NewRootCmd, tests)
 }

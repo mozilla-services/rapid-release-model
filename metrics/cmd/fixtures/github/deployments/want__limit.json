@@ -7,9 +7,14 @@
         "LatestEnvironment": "prod",
         "Task": "deploy",
         "State": "ACTIVE",
+        "Ref": "",
         "Commit": {
-            "AbbreviatedOid": "1abc111",
-            "Oid": "1abc111aaaaaaaaaaa"
+            "AbbreviatedSHA": "1abc111",
+            "SHA": "1abc111aaaaaaaaaaa",
+            "AuthoredDate": "2022-05-01T20:18:05Z",
+            "CommittedDate": "2022-05-01T20:18:05Z",
+            "Message": "commit changes 333",
+            "Parents": null
         }
     },
     {
@@ -20,9 +25,14 @@
         "LatestEnvironment": "stage",
         "Task": "deploy",
         "State": "ACTIVE",
+        "Ref": "",
         "Commit": {
-            "AbbreviatedOid": "1abc111",
-            "Oid": "1abc111aaaaaaaaaaa"
+            "AbbreviatedSHA": "1abc111",
+            "SHA": "1abc111aaaaaaaaaaa",
+            "AuthoredDate": "2022-05-01T20:18:05Z",
+            "CommittedDate": "2022-05-01T20:18:05Z",
+            "Message": "commit changes 333",
+            "Parents": null
         }
     }
 ]

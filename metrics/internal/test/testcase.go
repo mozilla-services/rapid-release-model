@@ -31,6 +31,9 @@ type TestCase struct {
 	// Expected output from the CLI app
 	WantText string
 
+	// Expected log output from the CLI app
+	WantLog string
+
 	// Function to load extected output
 	WantFixture func() ([]byte, error)
 
@@ -45,7 +48,7 @@ type TestCase struct {
 }
 
 // RunTests is a helper function for table-driven tests using subtests
-func RunTests(t *testing.T, newCmd func(*factory.Factory) *cobra.Command, tests []TestCase) {
+func RunTests(t *testing.T, newCmd func(factory.Factory) *cobra.Command, tests []TestCase) {
 	t.Helper()
 
 	for _, tt := range tests {
@@ -70,7 +73,7 @@ func RunTests(t *testing.T, newCmd func(*factory.Factory) *cobra.Command, tests 
 			}
 
 			// Execute the CLI cmd with the specified args
-			got, err := ExecuteCmd(newCmd, tt.Args, tt.WantReqParams)
+			got, log, err := ExecuteCmd(newCmd, tt.Args, tt.WantReqParams)
 
 			if tt.ErrContains != "" && err == nil {
 				t.Fatalf("cmd did not return an error. output: %v", got)
@@ -82,6 +85,15 @@ func RunTests(t *testing.T, newCmd func(*factory.Factory) *cobra.Command, tests 
 
 			if tt.ErrContains != "" && err != nil && !strings.Contains(err.Error(), tt.ErrContains) {
 				t.Fatalf("error did not contain message\ngot:     %v\nmissing: %v", err, tt.ErrContains)
+			}
+
+			if tt.WantLog != "" {
+				logGot := strings.TrimSpace(log)
+				logWant := strings.TrimSpace(tt.WantLog)
+
+				if !strings.Contains(logGot, logWant) {
+					t.Fatalf("cmd log did not contain expected message\n%v", cmp.Diff(logGot, logWant))
+				}
 			}
 
 			if tt.WantFile != "" {
