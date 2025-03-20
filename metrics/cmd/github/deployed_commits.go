@@ -33,9 +33,6 @@ func newDeployedCommitsCmd(f Factory, c *githubConfig) *cobra.Command {
 				return fmt.Errorf("commit-limit cannot be smaller than 1")
 			}
 
-			if config.commitLimit > 250 {
-				return fmt.Errorf("commit-limit cannot be greater than 250")
-			}
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
