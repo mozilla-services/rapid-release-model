@@ -1,13 +1,13 @@
 module github.com/mozilla-services/rapid-release-model
 
-go 1.21.3
+go 1.23.0
 
 require (
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-github/v68 v68.0.0
 	github.com/shurcooL/githubv4 v0.0.0-20240727222349-48295856cce7
 	github.com/spf13/cobra v1.8.1
-	golang.org/x/oauth2 v0.25.0
+	golang.org/x/oauth2 v0.27.0
 )
 
 require (
